@@ -24,6 +24,20 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}.flow .node{background:var(--panel);border:1px solid var(--line);padding:15px;border-radius:2px;position:relative}.node strong{display:block;font-size:12px}.node span{display:block;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.45}.node:after{content:"→";position:absolute;right:-10px;top:38%;color:var(--muted);z-index:2}.node:nth-child(4):after,.node:nth-child(8):after{content:""}.section-gap{margin-top:22px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:8px;overflow:auto}nav{display:flex;gap:3px}nav button{width:auto;white-space:nowrap}.nav-section{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.two,.three,.scenario,.form-grid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}.flow .node:after{display:none}main{padding:18px}}
 @media(max-width:520px){header{padding:0 15px}.header-right .status{display:none}.kpis{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.title{font-size:24px}}
+
+/* Editable campus waste table */
+.waste-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.waste-actions{display:flex;gap:7px;flex-wrap:wrap}
+.waste-actions .btn,.waste-delete{width:auto;margin:0;text-align:center;white-space:nowrap}
+.waste-table{min-width:1040px}
+.waste-table th,.waste-table td{padding:7px 6px;vertical-align:middle}
+.waste-input{width:100%;min-width:76px;box-sizing:border-box;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:2px;padding:8px;font:inherit;font-size:11px}
+.waste-input:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+.waste-table td:first-child .waste-input{min-width:145px}
+.waste-table td:nth-child(7) .waste-input{min-width:190px}
+.waste-delete{padding:7px 9px;color:var(--danger);border-color:#d7b7b7}
+@media(max-width:900px){.waste-editor-head{display:block}.waste-actions{margin-top:12px}.waste-actions .btn{width:auto}}
+
 </style>
 </head>
 <body>
@@ -38,7 +52,7 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="grid two"><div class="card"><h3 class="section-title">Projected gas output</h3><div class="chart" id="gasChart"></div><div class="xlabels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="legend"><span><i class="dot"></i>Methane</span><span><i class="dot s"></i>Other biogas</span></div></div><div class="card"><h3 class="section-title">Current process assessment</h3><div class="health"><div class="score" style="--score:86%"><strong>86</strong></div><div><div class="metric"><div class="metric-top"><span>pH</span><b>7.1</b></div><div class="meter"><span style="width:90%"></span></div></div><div class="metric"><div class="metric-top"><span>Temperature</span><b>37°C</b></div><div class="meter"><span style="width:92%"></span></div></div><div class="metric"><div class="metric-top"><span>OLR</span><b>3.0 kg VS/m³·d</b></div><div class="meter"><span style="width:78%"></span></div></div><div class="metric"><div class="metric-top"><span>C/N</span><b>24</b></div><div class="meter"><span style="width:82%"></span></div></div></div></div><div class="recommend" style="margin-top:16px"><b>Current note:</b> Operating conditions are inside the working range. Use the scenario page to test changes before selecting a design point.</div></div></div>
 <div class="section-gap card"><h3 class="section-title">System flow</h3><div class="flow"><div class="node"><strong>1 · Campus waste</strong><span>Hostel, canteen and garden streams</span></div><div class="node"><strong>2 · Characterization</strong><span>Quantity, TS, VS, C/N and composition</span></div><div class="node"><strong>3 · Virtual digester</strong><span>HRT, OLR, pH and temperature</span></div><div class="node"><strong>4 · Prediction</strong><span>Biogas and methane estimate</span></div><div class="node"><strong>5 · Health check</strong><span>Process stability assessment</span></div><div class="node"><strong>6 · Optimization</strong><span>Best mix and operating window</span></div><div class="node"><strong>7 · Resource recovery</strong><span>Energy and digestate potential</span></div><div class="node"><strong>8 · Decision support</strong><span>Compare scenarios for campus planning</span></div></div></div>
 </section>
-<section class="page" id="waste"><div class="eyebrow">01 · Feedstock</div><h1 class="title">Waste profile</h1><p class="subtitle">Set the working campus waste mix. Values here are placeholders for the prototype and should be replaced with your measured or literature-supported data.</p><div class="card" style="margin-top:22px"><table class="table"><thead><tr><th>Source</th><th>Share</th><th>Quantity</th><th>TS</th><th>VS / TS</th><th>C/N</th><th>Status</th></tr></thead><tbody id="wasteRows"></tbody></table></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Total feed</div><div class="kpi-value" id="wTotal">600 kg/d</div></div><div class="card"><div class="kpi-label">Weighted TS</div><div class="kpi-value">27.2%</div></div><div class="card"><div class="kpi-label">Weighted C/N</div><div class="kpi-value">24.1</div></div></div></section>
+<section class="page" id="waste"><div class="eyebrow">01 · Feedstock</div><h1 class="title">Waste profile</h1><p class="subtitle">Add and edit campus waste streams below. The starting rows are illustrative placeholders, not verified campus measurements. Replace them with measured or properly sourced values.</p><div class="card" style="margin-top:22px"><div class="waste-editor-head"><div><h3 class="section-title" style="margin-bottom:5px">Editable campus waste entries</h3><p class="small" style="margin:0">Edit any cell, add or delete sources, then select Save changes. Values are saved in this browser only.</p></div><div class="waste-actions"><button type="button" class="btn" id="addWasteBtn">Add source</button><button type="button" class="btn primary" id="saveWasteBtn">Save changes</button><button type="button" class="btn" id="resetWasteBtn">Reset examples</button></div></div><p class="small" id="wasteSaveStatus" aria-live="polite">Example values loaded. Edit them to match your records, then save.</p><div style="overflow-x:auto"><table class="table waste-table"><thead><tr><th>Source</th><th>Share (%)</th><th>Quantity (kg/day)</th><th>TS (%)</th><th>VS / TS (%)</th><th>C/N</th><th>Status / source note</th><th>Action</th></tr></thead><tbody id="wasteRows"></tbody></table></div><p class="small" id="wasteShareNote" aria-live="polite"></p></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Total feed</div><div class="kpi-value" id="wTotal">600 kg/d</div></div><div class="card"><div class="kpi-label">Weighted TS</div><div class="kpi-value" id="wWeightedTS">24.4%</div></div><div class="card"><div class="kpi-label">Weighted C/N</div><div class="kpi-value" id="wWeightedCN">25.6</div></div></div></section>
 <section class="page" id="data"><div class="eyebrow">01A · Research data</div><h1 class="title">Data & validation</h1><p class="subtitle">Keep measured campus observations, literature values and simulated values separate. This page is the bridge between the prototype and your final research dataset.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Campus observations</div><div class="kpi-value">0</div><div class="kpi-note">Awaiting your collected data</div></div><div class="card"><div class="kpi-label">Literature records</div><div class="kpi-value">To add</div><div class="kpi-note">Add documented sources when available</div></div><div class="card"><div class="kpi-label">Validation records</div><div class="kpi-value">0</div><div class="kpi-note">Add measured test observations later</div></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Data status</h3><table class="table"><tbody><tr><td>Waste quantity</td><td><span class="tag warn">Awaiting measurement</span></td></tr><tr><td>TS / VS</td><td><span class="tag warn">Awaiting lab data</span></td></tr><tr><td>C/N ratio</td><td><span class="tag warn">Awaiting lab / literature data</span></td></tr><tr><td>pH / temperature</td><td><span class="tag warn">Simulation inputs only</span></td></tr><tr><td>Biogas / methane yield</td><td><span class="tag bad">Awaiting measured yield data</span></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Validation rule</h3><div class="recommend"><b>Before reporting model performance:</b> keep a separate test set that the model never sees during training. Report R², RMSE and MAE only after this step.</div><div class="metric" style="margin-top:18px"><div class="metric-top"><span>Prototype readiness</span><b>Simulation only</b></div><div class="meter"><span style="width:35%"></span></div></div><p class="footnote">No experimental dataset has been added yet. When you upload your collected data, these statuses and the training dataset can be updated using your actual values.</p></div></div><div class="card section-gap"><h3 class="section-title">Recommended dataset columns</h3><div class="recommend">Date · waste source · kg/day · TS · VS · C/N · pH · temperature · HRT · OLR · substrate mix · inoculum ratio · biogas yield · methane yield · methane percentage</div></div></section>
 <section class="page" id="stpdata"><div class="eyebrow">Uploaded workbook · 13 October 2026</div><h1 class="title">STP sample data</h1><p class="subtitle">Imported from BIT_STP_data_sample.xlsx. These are preliminary transcriptions of sewage-treatment-plant records from notebook photographs, not measurements of campus food or garden waste.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Tank reading records</div><div class="kpi-value">27</div><div class="kpi-note">Separate tank / sampling-point entries</div></div><div class="card"><div class="kpi-label">Flow / biogas records</div><div class="kpi-value">12</div><div class="kpi-note">Units and intervals need confirmation</div></div><div class="card"><div class="kpi-label">Data confidence</div><div class="kpi-value">Mixed</div><div class="kpi-note">Some entries need notebook verification</div></div></div><div class="card section-gap"><h3 class="section-title">Tank readings · sample entries</h3><p class="small">Values shown as transcribed in the workbook. Blank means not clearly recorded, not zero.</p><table class="table"><thead><tr><th>Date</th><th>Sampling point</th><th>pH</th><th>Conductivity (µS/cm)</th><th>DO (mg/L)</th><th>Temp (°C)</th><th>BOD (mg/L)</th><th>Confidence / note</th></tr></thead><tbody><tr><td>06/10/2026</td><td>Pre-digester</td><td>5.28</td><td>1280</td><td>0.47</td><td>32</td><td>830</td><td>Medium; verify BOD and DO</td></tr><tr><td>06/10/2026</td><td>Night soil digester</td><td>6.71</td><td>1240</td><td>0.33</td><td>31</td><td>190</td><td>Medium</td></tr><tr><td>06/10/2026</td><td>Sewage inlet</td><td>6.88</td><td>1040</td><td>0.19</td><td>32</td><td>105</td><td>Column alignment uncertain</td></tr><tr><td>06/10/2026</td><td>UASBR</td><td>7.59</td><td>920</td><td>0.17</td><td>31</td><td>—</td><td>Confirm tank name</td></tr><tr><td>06/10/2026</td><td>Final treated</td><td>7.69</td><td>710</td><td>4.41</td><td>30</td><td>5</td><td>Low–medium; verify column positions and units</td></tr><tr><td>08/10/2026</td><td>Pre-digester</td><td>5.66</td><td>1410</td><td>0.71</td><td>—</td><td>1030</td><td>Temperature unclear</td></tr></tbody></table></div><div class="card section-gap"><h3 class="section-title">Flow and gas readings · sample entries</h3><p class="small">The workbook marks several totals, units and measurement intervals as unclear. Do not use these as confirmed daily flow or methane-yield values.</p><table class="table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Reading I</th><th>Reading II</th><th>Reading III</th><th>Total as written</th><th>Confidence</th></tr></thead><tbody><tr><td>08/10/2026</td><td>Pre-digester to main digester</td><td>173</td><td>206</td><td>134</td><td>3406</td><td>Low; total inconsistent</td></tr><tr><td>08/10/2026</td><td>Gas flow from NSD</td><td>81</td><td>40</td><td>105</td><td>226</td><td>Medium; unit unclear</td></tr><tr><td>08/10/2026</td><td>Gas flow to engine</td><td>319</td><td>104</td><td>315</td><td>738</td><td>Medium; confirm unit/interval</td></tr><tr><td>09/10/2026</td><td>Gas flow from NSD</td><td>108</td><td>59</td><td>54</td><td>229</td><td>Medium; unit unclear</td></tr><tr><td>10/10/2026</td><td>Gas flow from NSD</td><td>82</td><td>69</td><td>80</td><td>231</td><td>Medium; unit unclear</td></tr></tbody></table></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">How this dataset can support the project</h3><ul style="font-size:12px;line-height:1.8;padding-left:18px"><li>Track pH, conductivity, dissolved oxygen and other STP process indicators after confirming columns and units.</li><li>Review the difference between upstream and final-treated sample readings once the notebook values are verified.</li><li>Keep tank readings and flow/gas records in separate tables, preserving the original date, sampling point, source page and confidence.</li></ul></div><div class="card"><h3 class="section-title">Important limitation</h3><div class="recommend"><b>Not used as digester-feedstock or ML target data.</b> These STP wastewater records do not directly describe hostel/canteen organic-waste composition or validated methane yield. Confirm low-confidence values, units and meter intervals with the original notebook and STP staff before analysis.</div></div></div></section>
 <section class="page" id="workflow"><div class="eyebrow">Research planning · Low budget</div><h1 class="title">Data collection plan</h1><p class="subtitle">A staged workflow for starting from zero with partial laboratory access. Record measured campus data separately from literature values and simulated outputs.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Stage 1</div><h3 class="section-title" style="margin-top:8px">Campus waste survey</h3><p>For 7 consecutive days, record date, source, waste category, wet weight in kg, collection period and unusual conditions. Keep hostel, canteen and garden streams separate.</p><span class="tag">Scale and logbook</span></div><div class="card"><div class="kpi-label">Stage 2</div><h3 class="section-title" style="margin-top:8px">Available lab tests</h3><p>Ask the lab supervisor which tests and replicates are feasible. Prioritize moisture / total solids and volatile solids for representative samples. Record method, units and sample ID.</p><span class="tag">Use existing facilities</span></div><div class="card"><div class="kpi-label">Stage 3</div><h3 class="section-title" style="margin-top:8px">Literature supplement</h3><p>Find published anaerobic digestion experiments using similar food or vegetable waste. Extract feedstock, operating conditions, gas yield, methane fraction, units and the exact paper reference.</p><span class="tag">No sensor purchase</span></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Minimum dataset fields</h3><table class="table"><thead><tr><th>Field</th><th>Source</th></tr></thead><tbody><tr><td>Date, source, wet weight, category</td><td>Campus survey</td></tr><tr><td>Moisture / TS</td><td>Lab if available</td></tr><tr><td>VS</td><td>Lab if available</td></tr><tr><td>C/N, pH, alkalinity, ammonia</td><td>Lab or documented literature</td></tr><tr><td>Temperature, HRT, OLR, inoculum ratio</td><td>Published experiment or planned scenario</td></tr><tr><td>Biogas yield, methane fraction / yield</td><td>Published experiment; measured data if a digester test is conducted</td></tr></tbody></table><p class="footnote">A campus waste survey alone cannot provide methane yield. That output requires digestion experiments or suitable published experimental records.</p></div><div class="card"><h3 class="section-title">Sample handling and quality</h3><ul style="font-size:12px;line-height:1.8;padding-left:18px"><li>Get campus and laboratory approval before collecting samples.</li><li>Label each sample with a unique ID, date, source and collection time.</li><li>Follow the lab's approved sample storage and test procedures.</li><li>Run replicates where feasible and keep raw observations, not just averages.</li><li>Never invent missing values; use “not measured” and cite literature sources.</li><li>Keep simulation outputs in a separate table from measured or published results.</li></ul></div></div><div class="card section-gap"><h3 class="section-title">Suggested spreadsheet columns</h3><div class="recommend">Record ID · date · waste source · waste category · wet weight (kg) · moisture (%) · TS (%) · VS (state basis) · C/N · pH · temperature (°C) · HRT (d) · OLR (kg VS/m³/d) · inoculum ratio (define basis) · biogas volume (state units and duration) · methane (%) · methane yield (state basis) · data source type · paper / method reference · notes</div><p class="footnote">For ML, use comparable experimental rows with measured outputs. Keep papers and experiments identifiable, and split training/test data by experiment or study where appropriate to reduce leakage. Do not report predictive accuracy until independent validation is done.</p></div></section>
@@ -56,8 +70,110 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 const $=id=>document.getElementById(id);
 const pages=[...document.querySelectorAll('.page')];
 document.querySelectorAll('button[data-page]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('button[data-page]').forEach(x=>x.classList.remove('active'));b.classList.add('active');pages.forEach(p=>p.classList.toggle('active',p.id===b.dataset.page));window.scrollTo(0,0)}));$('termsLink').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='terms'));document.querySelectorAll('button[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page==='terms'));window.scrollTo(0,0)});
-const waste=[['Hostel food waste',55,330,25,90,20,'Awaiting campus data'],['Canteen vegetable waste',30,180,18,88,28,'Literature data pending'],['Garden waste',15,90,35,82,38,'Literature data pending']];
-$('wasteRows').innerHTML=waste.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}%</td><td>${r[2]} kg/d</td><td>${r[3]}%</td><td>${r[4]}%</td><td>${r[5]}</td><td><span class="tag ${r[6].includes('later')?'warn':''}">${r[6]}</span></td></tr>`).join('');
+const WASTE_STORAGE_KEY='bitAnaerobicWasteRows_v1';
+const wasteDefaults=[
+ {source:'Hostel food waste',share:55,quantity:330,ts:25,vsTs:90,cn:20,status:'Placeholder — awaiting campus data'},
+ {source:'Canteen vegetable waste',share:30,quantity:180,ts:18,vsTs:88,cn:28,status:'Placeholder — literature data pending'},
+ {source:'Garden waste',share:15,quantity:90,ts:35,vsTs:82,cn:38,status:'Placeholder — literature data pending'}
+];
+let waste=wasteDefaults.map(row=>({...row}));
+try {
+ const stored=localStorage.getItem(WASTE_STORAGE_KEY);
+ if(stored){
+  const parsed=JSON.parse(stored);
+  if(Array.isArray(parsed)){
+   waste=parsed.filter(r=>r&&typeof r==='object').map(r=>({
+    source:String(r.source??'New source'),share:Number(r.share)||0,quantity:Number(r.quantity)||0,
+    ts:Number(r.ts)||0,vsTs:Number(r.vsTs)||0,cn:Number(r.cn)||0,
+    status:String(r.status??'Needs verification')
+   }));
+  }
+ }
+} catch(e) { /* If browser storage is unavailable, edits still work for this page session. */ }
+const wasteFields=[
+ {key:'source',label:'Source',type:'text',min:null,max:null,step:null},
+ {key:'share',label:'Share (%)',type:'number',min:0,max:100,step:0.1},
+ {key:'quantity',label:'Quantity (kg/day)',type:'number',min:0,max:null,step:0.1},
+ {key:'ts',label:'TS (%)',type:'number',min:0,max:100,step:0.1},
+ {key:'vsTs',label:'VS / TS (%)',type:'number',min:0,max:100,step:0.1},
+ {key:'cn',label:'C/N',type:'number',min:0,max:null,step:0.1},
+ {key:'status',label:'Status / source note',type:'text',min:null,max:null,step:null}
+];
+function escapeWaste(value){
+ return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function renderWaste(){
+ $('wasteRows').innerHTML=waste.map((r,i)=>{
+  const cells=wasteFields.map(f=>{
+   const attrs=f.type==='number'
+    ? ' type="number" min="'+f.min+'"'+(f.max!==null?' max="'+f.max+'"':'')+' step="'+f.step+'"'
+    : ' type="text"';
+   return '<td><input class="waste-input"'+attrs+' aria-label="'+f.label+' for '+escapeWaste(r.source)+'" data-waste-index="'+i+'" data-waste-field="'+f.key+'" value="'+escapeWaste(r[f.key])+'"></td>';
+  }).join('');
+  return '<tr>'+cells+'<td><button type="button" class="btn waste-delete" data-delete-waste="'+i+'" aria-label="Delete '+escapeWaste(r.source)+'">Delete</button></td></tr>';
+ }).join('');
+ updateWasteStats();
+}
+function updateWasteStats(){
+ const total=waste.reduce((sum,r)=>sum+Math.max(0,Number(r.quantity)||0),0);
+ const weightedTS=total?waste.reduce((sum,r)=>sum+(Number(r.quantity)||0)*(Number(r.ts)||0),0)/total:0;
+ const weightedCN=total?waste.reduce((sum,r)=>sum+(Number(r.quantity)||0)*(Number(r.cn)||0),0)/total:0;
+ const share=waste.reduce((sum,r)=>sum+(Number(r.share)||0),0);
+ $('wTotal').textContent=total.toLocaleString(undefined,{maximumFractionDigits:1})+' kg/d';
+ $('wWeightedTS').textContent=weightedTS.toFixed(1)+'%';
+ $('wWeightedCN').textContent=weightedCN.toFixed(1);
+ const note=$('wasteShareNote');
+ if(Math.abs(share-100)>0.1){
+  note.textContent='Check share total: currently '+share.toFixed(1)+'%. Shares should total 100% if these rows represent the complete feed mix.';
+  note.style.color='var(--warn)';
+ } else {
+  note.textContent='Share total: 100.0%. Weighted TS and C/N are calculated from the quantities entered.';
+  note.style.color='var(--muted)';
+ }
+}
+function markWasteUnsaved(){
+ $('wasteSaveStatus').textContent='Unsaved changes. Select Save changes to keep them in this browser.';
+}
+$('wasteRows').addEventListener('input',e=>{
+ const input=e.target.closest('[data-waste-index][data-waste-field]');
+ if(!input)return;
+ const i=Number(input.dataset.wasteIndex), field=input.dataset.wasteField;
+ if(!waste[i])return;
+ const numeric=input.type==='number';
+ waste[i][field]=numeric?(input.value===''?0:Number(input.value)):input.value;
+ updateWasteStats();
+ markWasteUnsaved();
+});
+$('addWasteBtn').addEventListener('click',()=>{
+ waste.push({source:'New waste source',share:0,quantity:0,ts:0,vsTs:0,cn:0,status:'Needs measurement / source'});
+ renderWaste();
+ markWasteUnsaved();
+ const inputs=$('wasteRows').querySelectorAll('[data-waste-index="'+(waste.length-1)+'"][data-waste-field="source"]');
+ if(inputs.length)inputs[0].focus();
+});
+$('wasteRows').addEventListener('click',e=>{
+ const btn=e.target.closest('[data-delete-waste]');
+ if(!btn)return;
+ waste.splice(Number(btn.dataset.deleteWaste),1);
+ renderWaste();
+ markWasteUnsaved();
+});
+$('saveWasteBtn').addEventListener('click',()=>{
+ try{
+  localStorage.setItem(WASTE_STORAGE_KEY,JSON.stringify(waste));
+  $('wasteSaveStatus').textContent='Saved in this browser on this device. These values remain user-entered planning data until you verify their source.';
+ }catch(e){
+  $('wasteSaveStatus').textContent='Could not save to browser storage. Your current edits remain visible until you leave or reload this page.';
+ }
+});
+$('resetWasteBtn').addEventListener('click',()=>{
+ if(!window.confirm('Reset the waste table to the original illustrative example rows? Your saved local edits will be removed.'))return;
+ waste=wasteDefaults.map(row=>({...row}));
+ try{localStorage.removeItem(WASTE_STORAGE_KEY);}catch(e){}
+ renderWaste();
+ $('wasteSaveStatus').textContent='Example rows restored. They are placeholders, not verified campus measurements.';
+});
+renderWaste();
 const days=[0,1,2,3,4,5,6], vals=[116,121,126,124,132,129,122];$('gasChart').innerHTML=days.map((d,i)=>`<div class="bar-wrap"><div class="bar" style="height:${vals[i]/140*100}%"></div><div class="bar secondary" style="height:${(vals[i]*.52)/140*100}%"></div></div>`).join('');
 function sim(){const t=+$('temp').value,ph=+$('ph').value,h=+$('hrt').value,o=+$('olr').value,food=+$('food').value,garden=+$('garden').value;let score=100-Math.abs(t-37)*2-Math.abs(ph-7)*18-Math.abs(h-24)*.7-Math.abs(o-3)*5-Math.abs(food-60)*.18-Math.abs(garden-15)*.2;score=Math.max(40,Math.min(97,score));let ch4=124*(1+(food-55)*.004+(37-Math.abs(t-37))*0.004-(Math.abs(ph-7)*.03)-(Math.abs(o-3)*.015)-(Math.abs(h-25)*.004));ch4=Math.max(65,Math.round(ch4));let gas=Math.round(ch4/.65),dig=Math.round(600*(.77-(food-55)*.0005));$('simGas').textContent=gas+' m³/d';$('simCH4').textContent=ch4+' m³/d';$('simFrac').textContent=Math.round(ch4/gas*100)+'%';$('simDigestate').textContent=dig+' kg/d';$('kpiMethane').textContent=ch4+' m³/d';$('kpiEnergy').textContent=Math.round(ch4*9.94)+' kWh/d';$('kpiScore').textContent=Math.round(score)+' / 100';$('simNote').innerHTML=score>80?'<b>Assessment:</b> The current working point is inside the modeled stable range. This is a simulation result, not a physical measurement.':score>65?'<b>Assessment:</b> The scenario is workable but closer to an operating boundary. Check loading and pH before selecting it.':'<b>Assessment:</b> This scenario is outside the preferred working window. Use optimization to search for a more stable combination.';document.querySelector('.score').style.setProperty('--score',score+'%');document.querySelector('.score strong').textContent=Math.round(score);}
 [['temp','tempVal','°C'],['ph','phVal',''],['hrt','hrtVal',' d'],['olr','olrVal',' kg VS/m³·d'],['food','foodVal','%'],['garden','gardenVal','%']].forEach(([a,b,s])=>$(a).addEventListener('input',()=>{$(b).textContent=$(a).value+s;sim()}));$('runSim').addEventListener('click',sim);$('optimalBtn').addEventListener('click',()=>{[['temp',37],['ph',7],['hrt',24],['olr',3.1],['food',60],['garden',15]].forEach(([a,v])=>$(a).value=v);document.querySelectorAll('.field .range').forEach(e=>e.dispatchEvent(new Event('input')));sim()});
