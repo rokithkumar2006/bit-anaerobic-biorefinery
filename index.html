@@ -810,7 +810,15 @@ sim();
  }
  function renderArticleFindings(){
   const body=document.getElementById('articleResultsRows');
-  if(!articleFindings.length){body.innerHTML='<tr><td colspan="6" class="small">Upload a PDF to create candidate extraction rows.</td></tr>';return;}
+  if(!articleFindings.length){
+   body.innerHTML='<tr><td colspan="6" class="small">Upload a PDF to create candidate extraction rows.</td></tr>';
+   document.getElementById('articlePaperCount').textContent=articlePapers.length;
+   document.getElementById('articleFindingCount').textContent='0';
+   document.getElementById('articleReviewCount').textContent='0';
+   document.getElementById('exportArticleExcel').disabled=!articlePapers.length;
+   document.getElementById('clearArticleResults').disabled=!articlePapers.length;
+   return;
+  }
   body.innerHTML=articleFindings.map(function(f,index){
    const p=articlePapers.find(x=>x.id===f.paperId);
    const ev=f.evidence&&f.evidence.length?'<details class="article-evidence"><summary>View '+f.evidence.length+' evidence excerpt(s)</summary><ul>'+f.evidence.map(e=>'<li><b>PDF p. '+htmlEscape(e.page)+'</b><br>'+htmlEscape(e.text)+'</li>').join('')+'</ul></details>':'<span class="small">No source sentence detected; inspect PDF manually.</span>';
