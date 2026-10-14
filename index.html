@@ -68,6 +68,20 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 @media(max-width:900px){.stp-excel-toolbar{display:block}.stp-excel-toolbar .waste-actions{margin-top:12px}}
 
 
+
+/* Data validation STP workbook import */
+.data-import-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px;border:1px solid var(--line);background:var(--panel2);margin-top:14px}
+.data-import-toolbar .waste-actions{align-items:center}
+.data-import-toolbar .btn,.data-file-label{width:auto;text-align:center;white-space:nowrap}
+.data-stp-preview{margin-top:14px;padding:14px;border:1px solid var(--line);background:var(--panel)}
+.data-stp-preview[hidden]{display:none}
+.data-stp-preview .table{font-size:11px}
+.data-stp-preview .table th,.data-stp-preview .table td{padding:6px}
+.data-stp-preview .waste-actions .btn{width:auto;text-align:center}
+#dataStpStatus{overflow-wrap:anywhere}
+#dataStpTankRows td,#dataStpFlowRows td{vertical-align:top}
+@media(max-width:900px){.data-import-toolbar{display:block}.data-import-toolbar .waste-actions{margin-top:12px}}
+
 </style>
 </head>
 <body>
@@ -83,7 +97,8 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="section-gap card"><h3 class="section-title">System flow</h3><div class="flow"><div class="node"><strong>1 · Campus waste</strong><span>Hostel, canteen and garden streams</span></div><div class="node"><strong>2 · Characterization</strong><span>Quantity, TS, VS, C/N and composition</span></div><div class="node"><strong>3 · Virtual digester</strong><span>HRT, OLR, pH and temperature</span></div><div class="node"><strong>4 · Prediction</strong><span>Biogas and methane estimate</span></div><div class="node"><strong>5 · Health check</strong><span>Process stability assessment</span></div><div class="node"><strong>6 · Optimization</strong><span>Best mix and operating window</span></div><div class="node"><strong>7 · Resource recovery</strong><span>Energy and digestate potential</span></div><div class="node"><strong>8 · Decision support</strong><span>Compare scenarios for campus planning</span></div></div></div>
 </section>
 <section class="page" id="waste"><div class="eyebrow">01 · Feedstock</div><h1 class="title">Waste profile</h1><p class="subtitle">Add and edit campus waste streams below. The starting rows are illustrative placeholders, not verified campus measurements. Replace them with measured or properly sourced values.</p><div class="card section-gap" id="wasteUploadCard"><div class="waste-upload-head"><div><h3 class="section-title" style="margin-bottom:5px">Import campus waste data</h3><p class="small" style="margin:0">Upload a CSV or Excel file to preview and import compatible campus waste rows. The file is processed in your browser; it is not uploaded to a server.</p></div><label class="btn primary waste-file-label" for="wasteUploadFile">Choose CSV / Excel file</label><input id="wasteUploadFile" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden></div><p class="small" style="margin-top:12px">Recommended columns: Source, Share (%), Quantity (kg/day), TS (%), VS/TS (%), C/N, Status. For Excel workbooks, the first worksheet is read.</p><p class="small" id="wasteUploadStatus" aria-live="polite">No file selected.</p><div id="wasteUploadPreview" hidden><h4 class="section-title" style="margin:12px 0 8px">Import preview</h4><p class="small" id="wasteUploadSummary"></p><div style="overflow-x:auto"><table class="table waste-table"><thead><tr><th>Source</th><th>Share (%)</th><th>Quantity (kg/day)</th><th>TS (%)</th><th>VS / TS (%)</th><th>C/N</th><th>Status / source note</th></tr></thead><tbody id="wasteUploadPreviewRows"></tbody></table></div><div class="waste-actions" style="margin-top:12px"><button type="button" class="btn" id="appendWasteImportBtn">Append rows</button><button type="button" class="btn primary" id="replaceWasteImportBtn">Replace current table</button><button type="button" class="btn" id="cancelWasteImportBtn">Cancel</button></div><p class="small">Imported entries are not saved until you select <b>Save changes</b> in the editable table below.</p></div></div><div class="card" style="margin-top:22px"><div class="waste-editor-head"><div><h3 class="section-title" style="margin-bottom:5px">Editable campus waste entries</h3><p class="small" style="margin:0">Edit any cell, add or delete sources, then select Save changes. Values are saved in this browser only.</p></div><div class="waste-actions"><button type="button" class="btn" id="addWasteBtn">Add source</button><button type="button" class="btn primary" id="saveWasteBtn">Save changes</button><button type="button" class="btn" id="resetWasteBtn">Reset examples</button></div></div><p class="small" id="wasteSaveStatus" aria-live="polite">Example values loaded. Edit them to match your records, then save.</p><div style="overflow-x:auto"><table class="table waste-table"><thead><tr><th>Source</th><th>Share (%)</th><th>Quantity (kg/day)</th><th>TS (%)</th><th>VS / TS (%)</th><th>C/N</th><th>Status / source note</th><th>Action</th></tr></thead><tbody id="wasteRows"></tbody></table></div><p class="small" id="wasteShareNote" aria-live="polite"></p></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Total feed</div><div class="kpi-value" id="wTotal">600 kg/d</div></div><div class="card"><div class="kpi-label">Weighted TS</div><div class="kpi-value" id="wWeightedTS">24.4%</div></div><div class="card"><div class="kpi-label">Weighted C/N</div><div class="kpi-value" id="wWeightedCN">25.6</div></div></div></section>
-<section class="page" id="data"><div class="eyebrow">01A · Research data</div><h1 class="title">Data & validation</h1><p class="subtitle">Keep measured campus observations, literature values and simulated values separate. This page is the bridge between the prototype and your final research dataset.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Campus observations</div><div class="kpi-value">0</div><div class="kpi-note">Awaiting your collected data</div></div><div class="card"><div class="kpi-label">Literature records</div><div class="kpi-value">To add</div><div class="kpi-note">Add documented sources when available</div></div><div class="card"><div class="kpi-label">Validation records</div><div class="kpi-value">0</div><div class="kpi-note">Add measured test observations later</div></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Data status</h3><table class="table"><tbody><tr><td>Waste quantity</td><td><span class="tag warn">Awaiting measurement</span></td></tr><tr><td>TS / VS</td><td><span class="tag warn">Awaiting lab data</span></td></tr><tr><td>C/N ratio</td><td><span class="tag warn">Awaiting lab / literature data</span></td></tr><tr><td>pH / temperature</td><td><span class="tag warn">Simulation inputs only</span></td></tr><tr><td>Biogas / methane yield</td><td><span class="tag bad">Awaiting measured yield data</span></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Validation rule</h3><div class="recommend"><b>Before reporting model performance:</b> keep a separate test set that the model never sees during training. Report R², RMSE and MAE only after this step.</div><div class="metric" style="margin-top:18px"><div class="metric-top"><span>Prototype readiness</span><b>Simulation only</b></div><div class="meter"><span style="width:35%"></span></div></div><p class="footnote">No experimental dataset has been added yet. When you upload your collected data, these statuses and the training dataset can be updated using your actual values.</p></div></div><div class="card section-gap"><h3 class="section-title">Recommended dataset columns</h3><div class="recommend">Date · waste source · kg/day · TS · VS · C/N · pH · temperature · HRT · OLR · substrate mix · inoculum ratio · biogas yield · methane yield · methane percentage</div></div></section>
+<section class="page" id="data"><div class="eyebrow">01A · Research data</div><h1 class="title">Data & validation</h1><p class="subtitle">Keep measured campus observations, literature values and simulated values separate. This page is the bridge between the prototype and your final research dataset.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Campus waste observations</div><div class="kpi-value">0</div><div class="kpi-note">Food / garden feedstock data not uploaded yet</div></div><div class="card"><div class="kpi-label">Literature records</div><div class="kpi-value">To add</div><div class="kpi-note">Add documented sources when available</div></div><div class="card"><div class="kpi-label">Validation records</div><div class="kpi-value">0</div><div class="kpi-note">Add measured test observations later</div></div></div>
+<div class="card section-gap" id="dataStpWorkbookPanel"><h3 class="section-title">STP operational data from Excel</h3><p class="small">Your uploaded <b>BIT_STP_data_sample(2).xlsx</b> workbook contains 27 tank-reading rows and 12 flow / gas rows. Import the workbook here to load its rows into this page. These are preliminary STP wastewater records, not hostel/canteen/garden feedstock measurements or model-validation targets.</p><div class="data-import-toolbar"><div><strong>Import from sheet</strong><p class="small" style="margin:4px 0 0">Expected worksheets: <b>Tank Readings</b> and <b>Flow and Biogas</b>.</p></div><div class="waste-actions"><label class="btn primary data-file-label" for="dataStpExcelFile">Choose Excel workbook</label><input id="dataStpExcelFile" type="file" accept=".xlsx,.xls" hidden><button type="button" class="btn" id="dataStpExportBtn" disabled>Export imported data</button></div></div><p class="small" id="dataStpStatus" aria-live="polite">No workbook imported into this browser yet. Select your Excel file above to add its records to this page.</p><div id="dataStpPreview" class="data-stp-preview" hidden><strong>Import preview</strong><p class="small" id="dataStpPreviewSummary"></p><div class="grid two"><div><h4 class="section-title">Tank readings preview</h4><div style="overflow-x:auto"><table class="table"><thead><tr><th>Date</th><th>Sampling point</th><th>pH</th><th>Conductivity</th><th>BOD</th></tr></thead><tbody id="dataStpPreviewTank"></tbody></table></div></div><div><h4 class="section-title">Flow / gas preview</h4><div style="overflow-x:auto"><table class="table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Readings I–III</th><th>Total</th></tr></thead><tbody id="dataStpPreviewFlow"></tbody></table></div></div></div><div class="waste-actions" style="margin-top:12px"><button type="button" class="btn" id="dataStpAppendBtn">Append rows</button><button type="button" class="btn primary" id="dataStpReplaceBtn">Replace imported data</button><button type="button" class="btn" id="dataStpCancelBtn">Cancel</button></div></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Imported tank readings</div><div class="kpi-value" id="dataStpTankCount">0</div><div class="kpi-note">Stored in this browser</div></div><div class="card"><div class="kpi-label">Imported flow / gas rows</div><div class="kpi-value" id="dataStpFlowCount">0</div><div class="kpi-note">Stored in this browser</div></div><div class="card"><div class="kpi-label">Source confidence</div><div class="kpi-value" id="dataStpConfidence">—</div><div class="kpi-note">Transcription notes preserved</div></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Imported tank readings</h3><p class="small">Missing values stay blank; low-confidence transcription notes are retained.</p><div style="overflow-x:auto;max-height:420px;overflow-y:auto"><table class="table"><thead><tr><th>Record ID</th><th>Date</th><th>Sampling point</th><th>pH</th><th>Conductivity</th><th>TDS</th><th>DO</th><th>TSS</th><th>Temp</th><th>Turbidity</th><th>BOD</th><th>Confidence</th><th>Notes / verify</th></tr></thead><tbody id="dataStpTankRows"><tr><td colspan="13" class="small">Import the STP workbook to display its tank readings here.</td></tr></tbody></table></div></div><div class="card"><h3 class="section-title">Imported flow and gas readings</h3><p class="small">Units and meter intervals must be verified before calculating rates or yields.</p><div style="overflow-x:auto;max-height:420px;overflow-y:auto"><table class="table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Reading I</th><th>Reading II</th><th>Reading III</th><th>Total as written</th><th>Unit / period</th><th>Confidence</th><th>Notes / verify</th></tr></thead><tbody id="dataStpFlowRows"><tr><td colspan="9" class="small">Import the STP workbook to display its flow and gas readings here.</td></tr></tbody></table></div></div></div><p class="footnote">Excel imports and exports in this section use browser-side storage. Export regularly for backup; records are not synchronised to a central database. These STP records remain separate from campus organic-waste feedstock and validation datasets.</p></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Data status</h3><table class="table"><tbody><tr><td>Waste quantity</td><td><span class="tag warn">Awaiting measurement</span></td></tr><tr><td>TS / VS</td><td><span class="tag warn">Awaiting lab data</span></td></tr><tr><td>C/N ratio</td><td><span class="tag warn">Awaiting lab / literature data</span></td></tr><tr><td>pH / temperature</td><td><span class="tag warn">Simulation inputs only</span></td></tr><tr><td>Biogas / methane yield</td><td><span class="tag bad">Awaiting measured yield data</span></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Validation rule</h3><div class="recommend"><b>Before reporting model performance:</b> keep a separate test set that the model never sees during training. Report R², RMSE and MAE only after this step.</div><div class="metric" style="margin-top:18px"><div class="metric-top"><span>Prototype readiness</span><b>Simulation only</b></div><div class="meter"><span style="width:35%"></span></div></div><p class="footnote">No experimental dataset has been added yet. When you upload your collected data, these statuses and the training dataset can be updated using your actual values.</p></div></div><div class="card section-gap"><h3 class="section-title">Recommended dataset columns</h3><div class="recommend">Date · waste source · kg/day · TS · VS · C/N · pH · temperature · HRT · OLR · substrate mix · inoculum ratio · biogas yield · methane yield · methane percentage</div></div></section>
 <section class="page" id="stpdata"><div class="eyebrow">Uploaded workbook · 13 October 2026</div><h1 class="title">STP sample data</h1><p class="subtitle">Imported from BIT_STP_data_sample.xlsx. These are preliminary transcriptions of sewage-treatment-plant records from notebook photographs, not measurements of campus food or garden waste.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Tank reading records</div><div class="kpi-value">27</div><div class="kpi-note">Separate tank / sampling-point entries in the source workbook</div></div><div class="card"><div class="kpi-label">Flow / biogas records</div><div class="kpi-value">12</div><div class="kpi-note">Source workbook records; units and intervals need confirmation</div></div><div class="card"><div class="kpi-label">Data confidence</div><div class="kpi-value">Mixed</div><div class="kpi-note">Some entries need notebook verification</div></div></div>
 <div class="card section-gap"><h3 class="section-title">Add new STP sample data</h3><p class="small">Use these forms to record additional observations. Data is saved in this browser and can be imported from or exported to an Excel workbook. It is not sent to a central server. Keep units, measurement interval and source notes wherever possible.</p><div class="stp-excel-toolbar"><div><strong>Excel storage and backup</strong><p class="small" style="margin:4px 0 0">Import a workbook with <b>Tank Readings</b> and <b>Flow and Biogas</b> sheets, or export your saved entries to Excel.</p></div><div class="waste-actions"><label for="stpExcelImportFile" class="btn">Import Excel workbook</label><input id="stpExcelImportFile" type="file" accept=".xlsx,.xls" hidden><button type="button" class="btn primary" id="stpExportExcelBtn">Export Excel workbook</button></div></div><p class="small" id="stpExcelStatus" aria-live="polite">Saved entries are stored in this browser. Export a workbook regularly as a backup.</p><div id="stpImportPreview" class="stp-import-preview" hidden><strong id="stpImportPreviewTitle">Excel import preview</strong><p id="stpImportPreviewSummary" class="small"></p><div class="waste-actions"><button type="button" class="btn" id="stpImportAppendBtn">Append imported rows</button><button type="button" class="btn primary" id="stpImportReplaceBtn">Replace saved entries</button><button type="button" class="btn" id="stpImportCancelBtn">Cancel import</button></div></div><div class="stp-entry-grid">
 <form id="addTankReadingForm" class="stp-entry-form"><h3 class="section-title">Add tank reading</h3><div class="form-grid"><div class="field"><label for="newTankDate">Date *</label><input id="newTankDate" name="date" type="date" required></div><div class="field"><label for="newTankPoint">Sampling point *</label><input id="newTankPoint" name="point" type="text" placeholder="e.g. Sewage inlet" required></div><div class="field"><label for="newTankPH">pH</label><input id="newTankPH" name="ph" type="number" min="0" max="14" step="0.01" placeholder="e.g. 7.2"></div><div class="field"><label for="newTankCond">Conductivity (µS/cm)</label><input id="newTankCond" name="conductivity" type="number" min="0" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankTDS">TDS (mg/L)</label><input id="newTankTDS" name="tds" type="number" min="0" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankTSS">TSS (mg/L)</label><input id="newTankTSS" name="tss" type="number" min="0" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankTurbidity">Turbidity (NTU)</label><input id="newTankTurbidity" name="turbidity" type="number" min="0" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankDO">DO (mg/L)</label><input id="newTankDO" name="do" type="number" min="0" step="0.01" placeholder="Value"></div><div class="field"><label for="newTankTemp">Temperature (°C)</label><input id="newTankTemp" name="temperature" type="number" min="0" max="100" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankBOD">BOD (mg/L)</label><input id="newTankBOD" name="bod" type="number" min="0" step="0.1" placeholder="Value"></div><div class="field"><label for="newTankConfidence">Confidence / note *</label><input id="newTankConfidence" name="note" type="text" placeholder="e.g. Measured; units confirmed" required></div></div><div class="actions"><button class="btn primary" type="submit">Add tank reading</button><button class="btn" type="reset">Clear form</button></div></form>
@@ -635,4 +650,121 @@ sim();
 })();
 </script>
 
+<script>
+/* Data validation STP workbook import logic */
+(function(){
+ const TANK_KEY='bitDataValidationStpTank_v1';
+ const FLOW_KEY='bitDataValidationStpFlow_v1';
+ let tankRows=[],flowRows=[],pendingImport={tank:[],flow:[],fileName:''};
+ const $dv=id=>document.getElementById(id);
+ const norm=value=>String(value??'').toLowerCase().trim().replace(/µ/g,'u').replace(/²/g,'2').replace(/°/g,'').replace(/%/g,' pct ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+ const safe=value=>String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+ const show=value=>value===null||value===undefined||String(value).trim()===''?'—':safe(value);
+ function load(key){try{const d=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(d)?d:[]}catch(e){return []}}
+ function saveAll(){try{localStorage.setItem(TANK_KEY,JSON.stringify(tankRows));localStorage.setItem(FLOW_KEY,JSON.stringify(flowRows));return true}catch(e){return false}}
+ function updateStatus(msg,isError){$dv('dataStpStatus').textContent=msg;$dv('dataStpStatus').style.color=isError?'var(--danger)':'var(--muted)'}
+ function headerAt(rows,kind){
+  return rows.findIndex(r=>{
+   const h=r.map(norm);
+   const hasDate=h.some(x=>['date as written','date','sampling date'].includes(x));
+   const wants=kind==='tank'?['tank sampling point','tank sampling point','sampling point','tank source','tank']:['parameter route','parameter','route'];
+   return hasDate&&h.some(x=>wants.includes(x));
+  });
+ }
+ function col(headers,aliases){const h=headers.map(norm);for(const a of aliases){const i=h.indexOf(norm(a));if(i>=0)return i}return -1}
+ function val(row,columns,key){const i=columns[key];return i>=0?(row[i]??''):''}
+ function parseRows(sheet,kind){
+  if(!sheet)return [];
+  const all=window.XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:'',blankrows:false});
+  const hrow=headerAt(all,kind);if(hrow<0)return [];
+  const headers=all[hrow].map(String);
+  const ix=kind==='tank'?{
+   recordId:col(headers,['record id','id']),date:col(headers,['date as written','date','sampling date']),
+   point:col(headers,['tank / sampling point','tank/sampling point','tank sampling point','sampling point','tank','source']),
+   ph:col(headers,['ph']),conductivity:col(headers,['conductivity (us/cm)','conductivity us cm','conductivity']),
+   tds:col(headers,['tds (mg/l)','tds mg l','tds','total dissolved solids']),
+   do:col(headers,['do (mg/l)','do mg l','do','dissolved oxygen']),
+   tss:col(headers,['tss (mg/l)','tss mg l','tss','total suspended solids']),
+   temperature:col(headers,['temperature (c)','temperature c','temperature','temp']),
+   turbidity:col(headers,['turbidity (ntu)','turbidity ntu','turbidity']),
+   bod:col(headers,['bod (mg/l)','bod mg l','bod','bod5']),
+   confidence:col(headers,['transcription confidence','confidence','data confidence']),
+   note:col(headers,['notes / verify','notes verify','notes','verification note'])
+  }:{
+   date:col(headers,['date as written','date','sampling date']),route:col(headers,['parameter / route','parameter route','route','parameter']),
+   r1:col(headers,['reading i','reading 1']),r2:col(headers,['reading ii','reading 2']),r3:col(headers,['reading iii','reading 3']),
+   total:col(headers,['total as written','total','recorded total']),unitPeriod:col(headers,['unit / period','unit period','unit','measurement interval','interval']),
+   confidence:col(headers,['confidence','transcription confidence','data confidence']),note:col(headers,['notes / verify','notes verify','notes','verification note'])
+  };
+  return all.slice(hrow+1).map((row,i)=>{
+   const primary=val(row,ix,kind==='tank'?'point':'route');if(String(primary).trim()==='')return null;
+   const result={};Object.keys(ix).forEach(k=>result[k]=val(row,ix,k));
+   if(kind==='tank'){result.recordId=result.recordId||'Imported-T'+String(i+1).padStart(3,'0');result.source='Imported from Excel'}
+   else result.source='Imported from Excel';
+   return result;
+  }).filter(Boolean);
+ }
+ async function parseWorkbook(file){
+  if(!window.loadXlsxLibrary)throw new Error('Excel reader is unavailable. Refresh the page and try again.');
+  const XLSX=await window.loadXlsxLibrary();
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
+  const names=wb.SheetNames||[];
+  const tn=names.find(n=>norm(n)==='tank readings')||names.find(n=>norm(n).includes('tank reading'));
+  const fn=names.find(n=>norm(n)==='flow and biogas')||names.find(n=>norm(n).includes('flow')&&norm(n).includes('biogas'));
+  const tank=tn?parseRows(wb.Sheets[tn],'tank'):[];
+  const flow=fn?parseRows(wb.Sheets[fn],'flow'):[];
+  if(!tn&&!fn)throw new Error('Workbook must contain a "Tank Readings" or "Flow and Biogas" worksheet.');
+  if(!tank.length&&!flow.length)throw new Error('Worksheets were found, but no recognizable data rows were detected. Check the header row.');
+  return {tank,flow};
+ }
+ function renderPreview(){
+  $dv('dataStpPreviewTank').innerHTML=pendingImport.tank.slice(0,5).map(r=>'<tr><td>'+show(r.date)+'</td><td>'+show(r.point)+'</td><td>'+show(r.ph)+'</td><td>'+show(r.conductivity)+'</td><td>'+show(r.bod)+'</td></tr>').join('')||'<tr><td colspan="5">No tank rows detected</td></tr>';
+  $dv('dataStpPreviewFlow').innerHTML=pendingImport.flow.slice(0,5).map(r=>'<tr><td>'+show(r.date)+'</td><td>'+show(r.route)+'</td><td>'+[r.r1,r.r2,r.r3].map(v=>v===''?'—':v).join(' / ')+'</td><td>'+show(r.total)+'</td></tr>').join('')||'<tr><td colspan="4">No flow/gas rows detected</td></tr>';
+  $dv('dataStpPreviewSummary').textContent=pendingImport.fileName+' · '+pendingImport.tank.length+' tank-reading row(s), '+pendingImport.flow.length+' flow/gas row(s). Preview shows up to five of each.';
+  $dv('dataStpPreview').hidden=false;
+ }
+ function renderData(){
+  $dv('dataStpTankCount').textContent=tankRows.length;
+  $dv('dataStpFlowCount').textContent=flowRows.length;
+  const confidences=tankRows.concat(flowRows).map(r=>String(r.confidence||'').trim()).filter(Boolean);
+  $dv('dataStpConfidence').textContent=!confidences.length?'—':(confidences.every(x=>/high/i.test(x))?'High':confidences.every(x=>/medium/i.test(x))?'Medium':'Mixed');
+  $dv('dataStpExportBtn').disabled=!(tankRows.length||flowRows.length);
+  $dv('dataStpTankRows').innerHTML=tankRows.map(r=>'<tr><td>'+show(r.recordId)+'</td><td>'+show(r.date)+'</td><td>'+show(r.point)+'</td><td>'+show(r.ph)+'</td><td>'+show(r.conductivity)+'</td><td>'+show(r.tds)+'</td><td>'+show(r.do)+'</td><td>'+show(r.tss)+'</td><td>'+show(r.temperature)+'</td><td>'+show(r.turbidity)+'</td><td>'+show(r.bod)+'</td><td>'+show(r.confidence)+'</td><td>'+show(r.note)+'</td></tr>').join('')||'<tr><td colspan="13" class="small">Import the STP workbook to display its tank readings here.</td></tr>';
+  $dv('dataStpFlowRows').innerHTML=flowRows.map(r=>'<tr><td>'+show(r.date)+'</td><td>'+show(r.route)+'</td><td>'+show(r.r1)+'</td><td>'+show(r.r2)+'</td><td>'+show(r.r3)+'</td><td>'+show(r.total)+'</td><td>'+show(r.unitPeriod)+'</td><td>'+show(r.confidence)+'</td><td>'+show(r.note)+'</td></tr>').join('')||'<tr><td colspan="9" class="small">Import the STP workbook to display its flow and gas readings here.</td></tr>';
+ }
+ $dv('dataStpExcelFile').addEventListener('change',async e=>{
+  const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;
+  updateStatus('Reading '+file.name+'…',false);
+  try{const parsed=await parseWorkbook(file);pendingImport={...parsed,fileName:file.name};renderPreview();updateStatus('Workbook read. Review the row counts before importing.',false)}
+  catch(err){$dv('dataStpPreview').hidden=true;updateStatus(err&&err.message?err.message:'Could not read this workbook.',true)}
+ });
+ function applyImport(replace){
+  if(!pendingImport.tank.length&&!pendingImport.flow.length)return;
+  if(replace){tankRows=pendingImport.tank.slice();flowRows=pendingImport.flow.slice()}
+  else{tankRows=tankRows.concat(pendingImport.tank);flowRows=flowRows.concat(pendingImport.flow)}
+  const saved=saveAll();renderData();$dv('dataStpPreview').hidden=true;
+  updateStatus((replace?'Replaced saved records with ':'Added rows from ')+pendingImport.fileName+'. Current total: '+tankRows.length+' tank readings and '+flowRows.length+' flow/gas rows.'+(saved?'':' Storage limit may have been reached; export your workbook now.'),!saved);
+  pendingImport={tank:[],flow:[],fileName:''};
+ }
+ $dv('dataStpAppendBtn').addEventListener('click',()=>applyImport(false));
+ $dv('dataStpReplaceBtn').addEventListener('click',()=>{
+  if(window.confirm('Replace the STP records stored in this Data & validation page with the imported workbook rows? This does not change the separate sample transcription on the STP page.'))applyImport(true);
+ });
+ $dv('dataStpCancelBtn').addEventListener('click',()=>{pendingImport={tank:[],flow:[],fileName:''};$dv('dataStpPreview').hidden=true;updateStatus('Import cancelled; saved records were not changed.',false)});
+ $dv('dataStpExportBtn').addEventListener('click',async()=>{
+  try{
+   const XLSX=await window.loadXlsxLibrary();const wb=XLSX.utils.book_new();
+   const tanks=tankRows.map(r=>({'Record ID':r.recordId||'','Date as written':r.date||'','Tank / sampling point':r.point||'','pH':r.ph??'','Conductivity (µS/cm)':r.conductivity??'','TDS (mg/L)':r.tds??'','DO (mg/L)':r.do??'','TSS (mg/L)':r.tss??'','Temperature (°C)':r.temperature??'','Turbidity (NTU)':r.turbidity??'','BOD (mg/L)':r.bod??'','Transcription confidence':r.confidence||'','Notes / verify':r.note||''}));
+   const flows=flowRows.map(r=>({'Date as written':r.date||'','Parameter / route':r.route||'','Reading I':r.r1??'','Reading II':r.r2??'','Reading III':r.r3??'','Total as written':r.total??'','Unit / period':r.unitPeriod||'','Confidence':r.confidence||'','Notes / verify':r.note||''}));
+   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(tanks),'Tank Readings');
+   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(flows),'Flow and Biogas');
+   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['BIT STP Data & Validation export'],['Exported at',new Date().toISOString()],['Tank-reading rows',tankRows.length],['Flow/gas rows',flowRows.length],['Data limitation','Preliminary STP wastewater records only; not organic food/garden feedstock or validated model targets.'],['Confidence','Verify every low/medium confidence value, date, unit and interval against the original notebook.']]),'Read Me');
+   const d=new Date(),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+   XLSX.writeFile(wb,'BIT_Data_Validation_STP_'+stamp+'.xlsx');
+   updateStatus('Excel export generated: '+tankRows.length+' tank rows and '+flowRows.length+' flow/gas rows.',false);
+  }catch(err){updateStatus('Export failed: '+(err&&err.message?err.message:'check browser downloads and retry.'),true)}
+ });
+ tankRows=load(TANK_KEY);flowRows=load(FLOW_KEY);renderData();
+})();
+</script>
 </body></html>
