@@ -920,8 +920,8 @@ sim();
   const vals=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:'',blankrows:false});
   const possible=vals.findIndex(row=>{
    const headers=row.map(norm);
-   if(kind==='samples')return headers.includes('sample id')&&headers.includes('source type');
-   return headers.includes('run id')&&headers.includes('sample id');
+   if(kind==='samples')return hIndex(headers,['sample id'])>=0&&hIndex(headers,['source type','feedstock source','waste source'])>=0;
+   return hIndex(headers,['experiment / run id','experiment run id','run id'])>=0&&hIndex(headers,['feedstock sample id','sample id'])>=0;
   });
   if(possible<0)return [];
   const headers=vals[possible].map(String);
