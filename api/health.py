@@ -36,4 +36,4 @@ class handler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         return
-}
+
