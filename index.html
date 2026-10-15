@@ -1020,4 +1020,249 @@ sim();
  samples=load(SAMPLE_KEY);runs=load(RUN_KEY);render();
 })();
 </script>
+<script>
+/* Phase 4 baseline ML logic: local ridge regression from measured records only. */
+(function(){
+ 'use strict';
+ const SAMPLE_KEY='bitPhase3FeedstockSamples_v1';
+ const RUN_KEY='bitPhase3ValidationRuns_v1';
+ const MODEL_KEY='bitPhase4BaselineModels_v1';
+ const FEATURE_KEYS=['tsPct','vsTsPct','cnRatio','pH','temperatureC','hrtDays','olrKgVsM3D'];
+ const FEATURE_LABELS=['TS (%)','VS/TS (%)','C/N ratio','Sample pH','Temperature (°C)','HRT (days)','OLR (kg VS/m³·day)'];
+ const $=id=>document.getElementById(id);
+ const toNum=v=>v===null||v===undefined||String(v).trim()===''?null:(Number.isFinite(Number(v))?Number(v):null);
+ const esc=v=>String(v===null||v===undefined?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+ const load=key=>{try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}};
+ const idNorm=v=>String(v||'').trim().toLowerCase();
+ function currentData(){
+  const samples=load(SAMPLE_KEY),runs=load(RUN_KEY);
+  const sampleMap=new Map(samples.map(sample=>[idNorm(sample.sampleId),sample]).filter(entry=>entry[0]));
+  const signatureObject={
+   samples:samples.map(r=>[r.sampleId,r.tsPct,r.vsTsPct,r.cnRatio,r.pH]).sort((a,b)=>String(a[0]).localeCompare(String(b[0]))),
+   runs:runs.map(r=>[r.runId,r.sampleId,r.temperatureC,r.hrtDays,r.olrKgVsM3D,r.measuredBiogasM3D,r.measuredMethanePct]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])))
+  };
+  return {samples,runs,sampleMap,signature:JSON.stringify(signatureObject)};
+ }
+ function recordsFor(targetKey){
+  const data=currentData(),records=[];
+  data.runs.forEach(run=>{
+   const sample=data.sampleMap.get(idNorm(run.sampleId));
+   if(!sample)return;
+   const sourceFeatures={
+    tsPct:sample.tsPct,vsTsPct:sample.vsTsPct,cnRatio:sample.cnRatio,pH:sample.pH,
+    temperatureC:run.temperatureC,hrtDays:run.hrtDays,olrKgVsM3D:run.olrKgVsM3D
+   };
+   const x=FEATURE_KEYS.map(k=>toNum(sourceFeatures[k]));
+   const y=toNum(run[targetKey]);
+   if(x.some(v=>v===null)||y===null)return;
+   if(targetKey==='measuredMethanePct'&&(y<0||y>100))return;
+   if(targetKey==='measuredBiogasM3D'&&y<0)return;
+   records.push({sampleId:String(sample.sampleId),runId:String(run.runId||''),x,y});
+  });
+  return records;
+ }
+ function solveLinear(A,b){
+  const n=b.length, M=A.map((row,i)=>row.slice().concat([b[i]]));
+  for(let col=0;col<n;col++){
+   let pivot=col;
+   for(let row=col+1;row<n;row++)if(Math.abs(M[row][col])>Math.abs(M[pivot][col]))pivot=row;
+   if(Math.abs(M[pivot][col])<1e-12)throw new Error('The fitted data are numerically singular; collect more varied records.');
+   [M[col],M[pivot]]=[M[pivot],M[col]];
+   const div=M[col][col];for(let j=col;j<=n;j++)M[col][j]/=div;
+   for(let row=0;row<n;row++){
+    if(row===col)continue;
+    const factor=M[row][col];
+    for(let j=col;j<=n;j++)M[row][j]-=factor*M[col][j];
+   }
+  }
+  return M.map(row=>row[n]);
+ }
+ function predictWithModel(model,x){
+  const z=x.map((value,i)=>(value-model.means[i])/model.scales[i]);
+  const yNorm=model.coef[0]+z.reduce((sum,value,i)=>sum+value*model.coef[i+1],0);
+  return yNorm*model.yScale+model.yMean;
+ }
+ function fitRidge(train,test){
+  const featureCount=FEATURE_KEYS.length;
+  const means=Array.from({length:featureCount},(_,j)=>train.reduce((sum,r)=>sum+r.x[j],0)/train.length);
+  const scales=means.map((_,j)=>{
+   const variance=train.reduce((sum,r)=>sum+Math.pow(r.x[j]-means[j],2),0)/train.length;
+   return Math.sqrt(variance)||1;
+  });
+  const yMean=train.reduce((sum,r)=>sum+r.y,0)/train.length;
+  const yVariance=train.reduce((sum,r)=>sum+Math.pow(r.y-yMean,2),0)/train.length;
+  const yScale=Math.sqrt(yVariance)||1;
+  const design=train.map(r=>[1,...r.x.map((v,j)=>(v-means[j])/scales[j])]);
+  const targets=train.map(r=>(r.y-yMean)/yScale);
+  const dim=featureCount+1;
+  const A=Array.from({length:dim},()=>Array(dim).fill(0)),b=Array(dim).fill(0);
+  design.forEach((row,i)=>{
+   for(let j=0;j<dim;j++){
+    b[j]+=row[j]*targets[i];
+    for(let k=0;k<dim;k++)A[j][k]+=row[j]*row[k];
+   }
+  });
+  const lambda=1;
+  for(let j=1;j<dim;j++)A[j][j]+=lambda; // Do not penalize the intercept.
+  const coef=solveLinear(A,b);
+  const model={means,scales,yMean,yScale,coef,lambda};
+  const predicted=test.map(r=>predictWithModel(model,r.x));
+  const observed=test.map(r=>r.y);
+  const errors=predicted.map((value,i)=>value-observed[i]);
+  const mae=errors.reduce((sum,value)=>sum+Math.abs(value),0)/errors.length;
+  const rmse=Math.sqrt(errors.reduce((sum,value)=>sum+value*value,0)/errors.length);
+  const mean=observed.reduce((sum,value)=>sum+value,0)/observed.length;
+  const ssTot=observed.reduce((sum,value)=>sum+Math.pow(value-mean,2),0);
+  const ssRes=errors.reduce((sum,value)=>sum+value*value,0);
+  const r2=test.length>=2&&ssTot>1e-12?1-ssRes/ssTot:null;
+  return {model:{...model,trainCount:train.length,testCount:test.length},metrics:{mae,rmse,r2},testObserved:observed,testPredicted:predicted};
+ }
+ function trainTarget(targetKey){
+  const rows=recordsFor(targetKey);
+  const ids=[...new Set(rows.map(r=>r.sampleId))].sort((a,b)=>a.localeCompare(b));
+  if(ids.length<12)throw new Error('Need at least 12 distinct matched sample IDs with complete inputs and measured '+(targetKey==='measuredBiogasM3D'?'biogas-rate':'methane-fraction')+' targets; found '+ids.length+'.');
+  // Hold out whole sample IDs using a deterministic 1-in-4 split.
+  const testIds=new Set(ids.filter((_,i)=>i%4===0));
+  const train=rows.filter(r=>!testIds.has(r.sampleId));
+  const test=rows.filter(r=>testIds.has(r.sampleId));
+  if(test.length<3||train.length<FEATURE_KEYS.length+2)throw new Error('Not enough independent train/test records after the grouped split.');
+  const fit=fitRidge(train,test);
+  return {...fit,uniqueSamples:ids.length,targetKey,records:rows.length};
+ }
+ function metricsText(model,metricName){
+  const metrics=model&&model.metrics;
+  if(!metrics)return '—';
+  if(metricName==='r2')return metrics.r2===null?'Unavailable (test target variance is zero)':metrics.r2.toFixed(3);
+  return metrics[metricName].toFixed(4);
+ }
+ function currentModels(){
+  let saved=null;try{saved=JSON.parse(localStorage.getItem(MODEL_KEY)||'null')}catch(e){}
+  const data=currentData();
+  if(!saved||saved.signature!==data.signature)return {active:false,stale:!!saved,models:null,data};
+  return {active:!!(saved.gas&&saved.gas.model),stale:false,models:saved,data};
+ }
+ function renderModelStatus(){
+  const state=currentModels(),gasRows=recordsFor('measuredBiogasM3D'),ids=new Set(gasRows.map(r=>r.sampleId));
+  $('p4TrainRows').textContent=gasRows.length+' / '+ids.size+' IDs';
+  if(state.active){
+   $('p4ModelStatus').textContent='Trained';
+   $('p4TestRows').textContent=state.models.gas.model.testCount;
+   $('p4GasMAE').textContent=metricsText(state.models.gas,'mae');
+   $('p4GasRMSE').textContent=metricsText(state.models.gas,'rmse');
+   $('p4GasR2').textContent=metricsText(state.models.gas,'r2');
+   $('p4GasN').textContent=state.models.gas.model.testCount;
+   if(state.models.methane){
+    $('p4Ch4MAE').textContent=metricsText(state.models.methane,'mae');
+    $('p4Ch4RMSE').textContent=metricsText(state.models.methane,'rmse');
+    $('p4Ch4R2').textContent=metricsText(state.models.methane,'r2');
+    $('p4Ch4N').textContent=state.models.methane.model.testCount;
+   }else{
+    $('p4Ch4MAE').textContent='—';$('p4Ch4RMSE').textContent='—';$('p4Ch4R2').textContent='Not enough measured targets';$('p4Ch4N').textContent='0';
+   }
+   $('p4PredictBtn').disabled=false;$('p4RunOptimizationBtn').disabled=false;
+   $('p4OptModelStatus').textContent='Current model matches the saved measured dataset.';
+  }else{
+   $('p4ModelStatus').textContent=state.stale?'Needs retraining':'Not trained';
+   $('p4TestRows').textContent='0';
+   ['p4GasMAE','p4GasRMSE','p4GasR2','p4Ch4MAE','p4Ch4RMSE','p4Ch4R2'].forEach(id=>$(id).textContent='—');
+   ['p4GasN','p4Ch4N'].forEach(id=>$(id).textContent='0');
+   $('p4PredictBtn').disabled=true;$('p4RunOptimizationBtn').disabled=true;
+   $('p4OptModelStatus').textContent=state.stale?'Measured records changed; retrain before optimization.':'Requires a trained baseline model.';
+   if(state.stale)$('p4TrainStatus').textContent='Saved model is stale because the data changed. Retrain it.';
+  }
+ }
+ $('p4TrainModelBtn').addEventListener('click',()=>{
+  $('p4TrainStatus').textContent='Checking measured records and fitting baseline regressions…';
+  try{
+   const gas=trainTarget('measuredBiogasM3D');
+   let methane=null,methaneWarning='';
+   try{methane=trainTarget('measuredMethanePct')}catch(e){methaneWarning=' Methane-fraction model not trained: '+e.message;}
+   const data=currentData();
+   const saved={version:'ridge-regression-baseline-1',trainedAt:new Date().toISOString(),signature:data.signature,
+    features:FEATURE_KEYS,featureLabels:FEATURE_LABELS,gas,methane,
+    method:'Ridge regression with standardized features and deterministic sample-ID-grouped holdout split'};
+   localStorage.setItem(MODEL_KEY,JSON.stringify(saved));
+   renderModelStatus();
+   $('p4TrainStatus').textContent='Baseline trained. Biogas: '+gas.model.trainCount+' train / '+gas.model.testCount+' held-out records from '+gas.uniqueSamples+' distinct sample IDs.'+methaneWarning+' Export the Phase 3 workbook to preserve the measured data and test results.';
+  }catch(e){
+   try{localStorage.removeItem(MODEL_KEY)}catch(ignore){}
+   renderModelStatus();
+   $('p4TrainStatus').textContent='Model not trained: '+e.message;
+  }
+ });
+ $('p4ResetModelBtn').addEventListener('click',()=>{
+  try{localStorage.removeItem(MODEL_KEY)}catch(e){}
+  renderModelStatus();$('p4TrainStatus').textContent='Saved Phase 4 model cleared. Measured records were not deleted.';
+  $('p4PredGasOutput').textContent='—';$('p4PredCH4Output').textContent='—';$('p4PredMethaneOutput').textContent='—';
+ });
+ $('p4PredictForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const state=currentModels();
+  if(!state.active){$('p4PredictStatus').textContent='No current trained model. Train the baseline after collecting enough measured records.';return}
+  const x=[
+   toNum($('p4PredTS').value),toNum($('p4PredVSTS').value),toNum($('p4PredCN').value),
+   toNum($('p4PredPH').value),toNum($('p4PredTemp').value),toNum($('p4PredHRT').value),toNum($('p4PredOLR').value)
+  ];
+  if(x.some(v=>v===null)){$('p4PredictStatus').textContent='Complete every required input.';return}
+  if(x[0]<0||x[0]>100||x[1]<0||x[1]>100||x[2]<0||x[3]<0||x[3]>14||x[4]<0||x[4]>80||x[5]<=0||x[6]<0){$('p4PredictStatus').textContent='One or more values are outside the accepted range.';return}
+  const gas=predictWithModel(state.models.gas.model,x);
+  $('p4PredGasOutput').textContent=Number.isFinite(gas)?gas.toFixed(4)+' m³/day':'Unavailable';
+  let methaneFraction=null;
+  if(state.models.methane){
+   methaneFraction=predictWithModel(state.models.methane.model,x);
+   if(!Number.isFinite(methaneFraction)||methaneFraction<0||methaneFraction>100)methaneFraction=null;
+  }
+  $('p4PredCH4Output').textContent=methaneFraction===null?'Not available':methaneFraction.toFixed(2)+'%';
+  $('p4PredMethaneOutput').textContent=methaneFraction===null?'Not available':(gas*methaneFraction/100).toFixed(4)+' m³/day';
+  const nearestDistance=Math.min(...state.models.gas.model.means.map((_,i)=>Math.abs((x[i]-state.models.gas.model.means[i])/(state.models.gas.model.scales[i]||1))));
+  $('p4PredictStatus').textContent=(gas<0?'Warning: negative output is not physically meaningful; do not use it. ':'')+'Estimated by local ridge-regression baseline using measured records. Use only within the training-data range; no campus-specific external validation has been established.';
+ });
+ function numberSeries(min,max,step,name){
+  if(!(Number.isFinite(min)&&Number.isFinite(max)&&Number.isFinite(step))||step<=0||min>max)throw new Error(name+': check minimum, maximum and positive step.');
+  const values=[];
+  for(let value=min;value<=max+step*1e-9;value+=step){
+   values.push(Number(value.toFixed(8)));
+   if(values.length>500)throw new Error('Search range is too large; reduce the step or bounds.');
+  }
+  if(!values.length)throw new Error(name+': no candidate values.');
+  return values;
+ }
+ $('p4RunOptimizationBtn').addEventListener('click',()=>{
+  const state=currentModels();
+  if(!state.active){$('p4OptSummary').textContent='Train a current baseline model first.';return}
+  try{
+   const fixed=[
+    toNum($('p4OptTS').value),toNum($('p4OptVSTS').value),toNum($('p4OptCN').value),toNum($('p4OptPH').value)
+   ];
+   if(fixed.some(v=>v===null)||fixed[0]<0||fixed[0]>100||fixed[1]<0||fixed[1]>100||fixed[2]<0||fixed[3]<0||fixed[3]>14)throw new Error('Check TS, VS/TS, C/N and pH values.');
+   const temps=numberSeries(toNum($('p4OptTempMin').value),toNum($('p4OptTempMax').value),toNum($('p4OptTempStep').value),'Temperature');
+   const hrts=numberSeries(toNum($('p4OptHrtMin').value),toNum($('p4OptHrtMax').value),toNum($('p4OptHrtStep').value),'HRT');
+   const olrs=numberSeries(toNum($('p4OptOlrMin').value),toNum($('p4OptOlrMax').value),toNum($('p4OptOlrStep').value),'OLR');
+   const total=temps.length*hrts.length*olrs.length;
+   if(total>500)throw new Error('This grid contains '+total+' candidates. Reduce the ranges; maximum supported is 500.');
+   const rows=[];
+   temps.forEach(temperatureC=>hrts.forEach(hrtDays=>olrs.forEach(olrKgVsM3D=>{
+    const x=[...fixed,temperatureC,hrtDays,olrKgVsM3D];
+    const gas=predictWithModel(state.models.gas.model,x);
+    let fraction=null;
+    if(state.models.methane) {
+     const predicted=predictWithModel(state.models.methane.model,x);
+     if(Number.isFinite(predicted)&&predicted>=0&&predicted<=100)fraction=predicted;
+    }
+    rows.push({temperatureC,hrtDays,olrKgVsM3D,gas,fraction,methane: fraction===null?null:gas*fraction/100});
+   })));
+   const canRankMethane=!!state.models.methane&&rows.every(r=>r.methane!==null);
+   rows.sort((a,b)=>canRankMethane?b.methane-a.methane:b.gas-a.gas);
+   const best=rows[0];
+   $('p4OptCandidateCount').textContent=rows.length;
+   $('p4OptObjective').textContent=canRankMethane?'Predicted methane':'Predicted biogas';
+   $('p4OptBestOutput').textContent=canRankMethane?best.methane.toFixed(4)+' m³/day':best.gas.toFixed(4)+' m³/day';
+   $('p4OptRows').innerHTML=rows.slice(0,10).map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.temperatureC+'</td><td>'+r.hrtDays+'</td><td>'+r.olrKgVsM3D+'</td><td>'+r.gas.toFixed(4)+'</td><td>'+(r.fraction===null?'—':r.fraction.toFixed(2))+'</td><td>'+(r.methane===null?'—':r.methane.toFixed(4))+'</td></tr>').join('');
+   $('p4OptSummary').textContent='Searched '+rows.length+' candidate settings using the current measured-data baseline. Ranked by '+(canRankMethane?'predicted methane production':'predicted biogas rate')+'. These are model-ranked candidates, not validated process recommendations.';
+  }catch(err){$('p4OptCandidateCount').textContent='0';$('p4OptObjective').textContent='Unavailable';$('p4OptBestOutput').textContent='—';$('p4OptRows').innerHTML='<tr><td colspan="7" class="small">Search not completed.</td></tr>';$('p4OptSummary').textContent=err.message||'Unable to run the candidate search.'}
+ });
+ // Render state from browser storage; model is disabled if its training signature is stale.
+ renderModelStatus();
+})();
+</script>
 </body></html>
