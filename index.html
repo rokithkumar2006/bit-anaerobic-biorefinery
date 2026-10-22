@@ -105,6 +105,14 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 #p4TrainStatus,#p4PredictStatus,#p4OptModelStatus{overflow-wrap:anywhere}
 #p4PredictBtn:disabled,#p4RunOptimizationBtn:disabled{opacity:.5;cursor:not-allowed}
 
+
+/* Phase 4 STP exploratory analysis */
+.p4-stp-table{min-width:850px}
+.p4-stp-table td{vertical-align:top}
+#p4StpStatus{overflow-wrap:anywhere}
+#p4StpExploratory .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#p4StpExploratory .actions .btn{width:auto;text-align:center}
+
 </style>
 </head>
 <body>
@@ -145,7 +153,7 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <section class="page" id="digester"><div class="eyebrow">02 · Interactive process simulator</div><h1 class="title">Virtual anaerobic digester</h1><p class="subtitle">Change operating conditions and feed characteristics, run a scenario, and inspect estimated gas production, reactor sizing and stability flags. This is a transparent screening calculation, not a calibrated ADM1 model or a validated prediction.</p><div class="card" style="margin-top:22px"><h3 class="section-title">Operating conditions</h3><div class="form-grid"><div class="field"><label>Temperature <b id="tempVal">37 °C</b></label><input class="range" id="temp" type="range" min="25" max="55" value="37"></div><div class="field"><label>pH <b id="phVal">7.1</b></label><input class="range" id="ph" type="range" min="5.5" max="8.5" step="0.1" value="7.1"></div><div class="field"><label>Hydraulic retention time <b id="hrtVal">25 d</b></label><input class="range" id="hrt" type="range" min="10" max="45" value="25"></div><div class="field"><label>Target OLR <b id="olrVal">3.0 kg VS/m³·d</b></label><input class="range" id="olr" type="range" min="0.5" max="7" step="0.1" value="3"></div><div class="field"><label>Mixing speed <b id="mixingVal">40 rpm</b></label><input class="range" id="mixing" type="range" min="0" max="100" step="5" value="40"></div><div class="field"><label>Inoculum / feed ratio <b id="inoculumVal">10%</b></label><input class="range" id="inoculum" type="range" min="0" max="30" value="10"></div></div><h3 class="section-title" style="margin-top:24px">Feedstock characterization</h3><div class="form-grid"><div class="field"><label>Wet feed rate <b id="feedRateVal">600 kg/d</b></label><input class="range" id="feedRate" type="range" min="50" max="1500" step="25" value="600"></div><div class="field"><label>Total solids <b id="tsVal">25%</b></label><input class="range" id="ts" type="range" min="5" max="45" value="25"></div><div class="field"><label>VS / TS <b id="vsratioVal">90%</b></label><input class="range" id="vsratio" type="range" min="50" max="98" value="90"></div><div class="field"><label>Feedstock C/N ratio <b id="cnVal">24</b></label><input class="range" id="cn" type="range" min="8" max="45" value="24"></div><div class="field"><label>Alkalinity <b id="alkalinityVal">2500 mg/L</b></label><input class="range" id="alkalinity" type="range" min="500" max="6000" step="100" value="2500"></div><div class="field"><label>Free-ammonia screening input <b id="ammoniaVal">100 mg/L</b></label><input class="range" id="ammonia" type="range" min="0" max="1500" step="25" value="100"></div></div><div class="actions"><button class="btn primary" id="runSim">Run simulation</button><button class="btn" id="optimalBtn">Load reference conditions</button><button class="btn" id="exportSim">Export results CSV</button></div></div><div class="grid kpis"><div class="card"><div class="kpi-label">Estimated biogas</div><div class="kpi-value" id="simGas">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Estimated methane</div><div class="kpi-value" id="simCH4">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Methane fraction</div><div class="kpi-value" id="simFrac">—</div><div class="kpi-note" id="simFracNote">Screening estimate</div></div><div class="card"><div class="kpi-label">Gross energy potential</div><div class="kpi-value" id="simEnergy">—</div><div class="kpi-note">kWh/day, before conversion losses</div></div></div><div class="grid two"><div class="card"><h3 class="section-title">Screening reactor and loading calculations</h3><p class="small">These values come from the separate screening calculator and its TS/VS assumptions. They are not PyADM1ODE state outputs. The mechanistic model uses its own proxy-substrate properties and the assumptions shown in the model panel.</p><table class="table"><tbody><tr><td>Volatile solids feed</td><td><b id="simVS">—</b></td></tr><tr><td>Working volume from HRT</td><td><b id="simVolume">—</b></td></tr><tr><td>OLR implied by feed and HRT</td><td><b id="simImpliedOLR">—</b></td></tr><tr><td>Target OLR setting</td><td><b id="simTargetOLR">—</b></td></tr><tr><td>Estimated methane yield</td><td><b id="simYield">—</b></td></tr><tr><td>Net energy screening estimate</td><td><b id="simNetEnergy">—</b></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Process stability checks</h3><div class="metric"><div class="metric-top"><span>Screening score</span><b id="simScore">—</b></div><div class="meter"><span id="simScoreMeter" style="width:0%"></span></div></div><div id="simAlerts" class="recommend">Run the simulator to view parameter checks.</div><p class="footnote">The score is a heuristic indicator, not a biological stability measurement. Alkalinity and ammonia limits depend on the actual substrate, temperature, pH and analytical method.</p></div></div><div class="card section-gap"><h3 class="section-title">Parameter sensitivity view</h3><p class="small">Relative factor values used by this screening equation. These are not measured rates or an ADM1 state profile.</p><div id="sensitivityBars" style="display:grid;gap:12px;margin-top:16px"></div><div class="recommend" style="margin-top:18px" id="simNote">Adjust the controls and run the simulation to compare the effect of operating conditions.</div></div></section>
 <section class="page" id="prediction"><div class="eyebrow">03 · Phase 4 · Data-driven prediction</div><h1 class="title">Prediction</h1><p class="subtitle">Train a transparent baseline regression model using matched campus feedstock characterization and measured digestion outcomes. The model remains untrained until sufficient measured records exist; STP wastewater records and simulated outputs are not training labels.</p>
 <div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Training records</div><div class="kpi-value" id="p4TrainRows">0</div><div class="kpi-note">Matched sample / run pairs</div></div><div class="card"><div class="kpi-label">Baseline model</div><div class="kpi-value" id="p4ModelStatus">Not trained</div><div class="kpi-note">Ridge regression · local browser</div></div><div class="card"><div class="kpi-label">Held-out records</div><div class="kpi-value" id="p4TestRows">0</div><div class="kpi-note">Grouped by sample ID</div></div></div>
-<div class="card section-gap"><h3 class="section-title">1. Train and evaluate the baseline</h3><p class="small">The feature set is TS, VS/TS, C/N, sample pH, operating temperature, HRT and OLR. Targets are measured biogas rate (m³/day) and measured methane fraction (%). The split holds out whole sample IDs to reduce leakage. At least 12 distinct matched sample IDs with complete inputs and measured target values are required for each target.</p><div class="actions"><button type="button" class="btn primary" id="p4TrainModelBtn">Train baseline model</button><button type="button" class="btn" id="p4ResetModelBtn">Clear saved model</button><span id="p4TrainStatus" class="small" role="status" aria-live="polite">Waiting for measured data.</span></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Held-out biogas evaluation</h3><table class="table"><tbody><tr><td>MAE</td><td><b id="p4GasMAE">—</b></td></tr><tr><td>RMSE</td><td><b id="p4GasRMSE">—</b></td></tr><tr><td>R²</td><td><b id="p4GasR2">—</b></td></tr><tr><td>Evaluation records</td><td><b id="p4GasN">0</b></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Held-out methane fraction evaluation</h3><table class="table"><tbody><tr><td>MAE (percentage points)</td><td><b id="p4Ch4MAE">—</b></td></tr><tr><td>RMSE (percentage points)</td><td><b id="p4Ch4RMSE">—</b></td></tr><tr><td>R²</td><td><b id="p4Ch4R2">—</b></td></tr><tr><td>Evaluation records</td><td><b id="p4Ch4N">0</b></td></tr></tbody></table></div></div><p class="footnote">A held-out split is an initial internal check, not external validation. Small or unrepresentative datasets can produce unstable metrics. Do not train on model-generated values or STP wastewater readings.</p></div>
+<div class="card section-gap" id="p4StpExploratory"><div class="eyebrow">Uploaded workbook · separate exploratory dataset</div><h2 class="section-title" style="font-size:22px">Explore your STP operational data</h2><p class="small">I used the uploaded <b>BIT_STP_data_sample(3).xlsx</b> workbook. It has 27 tank-reading records and 12 flow/gas records. The tank sheet can support a small exploratory check of STP pH using conductivity, dissolved oxygen and temperature. It cannot be used as training data for campus food-waste digester methane yield. The gas-flow units and measurement intervals are unclear, so those rows are displayed as raw source records and excluded from model fitting.</p><div class="grid four section-gap"><div class="card"><div class="kpi-label">Tank records</div><div class="kpi-value" id="p4StpTankN">27</div></div><div class="card"><div class="kpi-label">Flow / gas records</div><div class="kpi-value" id="p4StpFlowN">12</div></div><div class="card"><div class="kpi-label">Complete pH rows</div><div class="kpi-value" id="p4StpCompleteN">—</div><div class="kpi-note">pH + conductivity + DO + temperature</div></div><div class="card"><div class="kpi-label">Data confidence</div><div class="kpi-value">Mixed</div><div class="kpi-note">Notebook transcription needs verification</div></div></div><div class="actions"><button type="button" class="btn primary" id="p4RunStpDemo">Run exploratory STP pH check</button><button type="button" class="btn" id="p4ExportStpDemo" disabled>Export check results CSV</button><span id="p4StpStatus" class="small" role="status" aria-live="polite">Load the bundled source data and run the held-out-date check.</span></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Held-out date</div><div class="kpi-value" id="p4StpHoldoutDate">—</div><div class="kpi-note">Latest date excluded from fitting</div></div><div class="card"><div class="kpi-label">pH MAE</div><div class="kpi-value" id="p4StpMAE">—</div><div class="kpi-note">pH units · exploratory only</div></div><div class="card"><div class="kpi-label">pH RMSE / R²</div><div class="kpi-value" id="p4StpRMSE">—</div><div class="kpi-note" id="p4StpR2">R² unavailable until evaluated</div></div></div><div class="card section-gap"><h3 class="section-title">Held-out STP pH estimates</h3><p class="small">The latest recorded day is withheld as a group; earlier complete rows are used to fit a small ridge-regression baseline. Values include low/medium-confidence transcriptions and are not validated predictions.</p><div style="overflow-x:auto;max-height:360px;overflow-y:auto"><table class="table p4-stp-table"><thead><tr><th>Date</th><th>Sampling point</th><th>Source pH</th><th>Estimated pH</th><th>Absolute error</th><th>Transcription confidence</th><th>Source note</th></tr></thead><tbody id="p4StpResultsRows"><tr><td colspan="7" class="small">No exploratory check run yet.</td></tr></tbody></table></div></div><div class="card section-gap"><h3 class="section-title">Flow / gas source records — not used for training</h3><p class="small">The original sheet has 12 flow/gas rows, but the unit, interval, and some totals are unclear. They are preserved here as transcribed; no daily methane yield is calculated from them.</p><div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table class="table p4-stp-table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Reading I</th><th>Reading II</th><th>Reading III</th><th>Total as written</th><th>Unit / period</th><th>Confidence</th><th>Notes</th></tr></thead><tbody id="p4StpFlowRows"><tr><td colspan="9" class="small">Source data not loaded yet.</td></tr></tbody></table></div></div><div class="recommend"><b>Scientific boundary:</b> this STP-only model predicts a wastewater treatment indicator (pH) from other STP readings. It does not predict anaerobic food-waste digester biogas/methane, and should not be reported as the project's final AI model. Check the source notebook before reusing results.</div></div><div class="card section-gap"><h3 class="section-title">1. Train and evaluate the baseline</h3><p class="small">The feature set is TS, VS/TS, C/N, sample pH, operating temperature, HRT and OLR. Targets are measured biogas rate (m³/day) and measured methane fraction (%). The split holds out whole sample IDs to reduce leakage. At least 12 distinct matched sample IDs with complete inputs and measured target values are required for each target.</p><div class="actions"><button type="button" class="btn primary" id="p4TrainModelBtn">Train baseline model</button><button type="button" class="btn" id="p4ResetModelBtn">Clear saved model</button><span id="p4TrainStatus" class="small" role="status" aria-live="polite">Waiting for measured data.</span></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Held-out biogas evaluation</h3><table class="table"><tbody><tr><td>MAE</td><td><b id="p4GasMAE">—</b></td></tr><tr><td>RMSE</td><td><b id="p4GasRMSE">—</b></td></tr><tr><td>R²</td><td><b id="p4GasR2">—</b></td></tr><tr><td>Evaluation records</td><td><b id="p4GasN">0</b></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Held-out methane fraction evaluation</h3><table class="table"><tbody><tr><td>MAE (percentage points)</td><td><b id="p4Ch4MAE">—</b></td></tr><tr><td>RMSE (percentage points)</td><td><b id="p4Ch4RMSE">—</b></td></tr><tr><td>R²</td><td><b id="p4Ch4R2">—</b></td></tr><tr><td>Evaluation records</td><td><b id="p4Ch4N">0</b></td></tr></tbody></table></div></div><p class="footnote">A held-out split is an initial internal check, not external validation. Small or unrepresentative datasets can produce unstable metrics. Do not train on model-generated values or STP wastewater readings.</p></div>
 <div class="card section-gap"><h3 class="section-title">2. Predict a candidate case</h3><p class="small">Enter characterized feedstock values and intended operating conditions. Results are available only after a current, successfully trained local model exists.</p><form id="p4PredictForm"><div class="form-grid"><div class="field"><label for="p4PredTS">TS (%) *</label><input id="p4PredTS" type="number" min="0" max="100" step="0.1" required></div><div class="field"><label for="p4PredVSTS">VS/TS (%) *</label><input id="p4PredVSTS" type="number" min="0" max="100" step="0.1" required></div><div class="field"><label for="p4PredCN">C/N ratio *</label><input id="p4PredCN" type="number" min="0" step="0.1" required></div><div class="field"><label for="p4PredPH">Measured sample pH *</label><input id="p4PredPH" type="number" min="0" max="14" step="0.01" required></div><div class="field"><label for="p4PredTemp">Operating temperature (°C) *</label><input id="p4PredTemp" type="number" min="0" max="80" step="0.1" required></div><div class="field"><label for="p4PredHRT">HRT (days) *</label><input id="p4PredHRT" type="number" min="0.1" step="0.1" required></div><div class="field"><label for="p4PredOLR">OLR (kg VS/m³·day) *</label><input id="p4PredOLR" type="number" min="0" step="0.01" required></div></div><div class="actions"><button type="submit" class="btn primary" id="p4PredictBtn" disabled>Predict using trained model</button></div></form><div class="grid three section-gap"><div class="card"><div class="kpi-label">Predicted biogas rate</div><div class="kpi-value" id="p4PredGasOutput">—</div><div class="kpi-note">m³/day · data-derived estimate</div></div><div class="card"><div class="kpi-label">Predicted methane fraction</div><div class="kpi-value" id="p4PredCH4Output">—</div><div class="kpi-note">Only if a separate target model is available</div></div><div class="card"><div class="kpi-label">Predicted methane rate</div><div class="kpi-value" id="p4PredMethaneOutput">—</div><div class="kpi-note">Derived only when both models are usable</div></div></div><p id="p4PredictStatus" class="small" role="status" aria-live="polite">No prediction generated.</p></div>
 <div class="grid two section-gap"><div class="card"><h3 class="section-title">What this baseline model is</h3><p class="small">A ridge-regression baseline implemented in the browser using your own saved measured records. It is a starting point for comparison, not a claim that Random Forest, XGBoost, SVR or ANN has been trained.</p></div><div class="card"><h3 class="section-title">Data quality gate</h3><div class="recommend"><b>Measured outcomes only.</b> Every training target must come from an actual digestion measurement with a documented unit and method. Modelled values cannot serve as experimental ground truth.</div></div></div></section>
 <section class="page" id="optimization"><div class="eyebrow">04 · Phase 4 · Model-based candidate search</div><h1 class="title">Optimization</h1><p class="subtitle">Search candidate temperature, HRT and OLR settings using the trained measured-data baseline model. This ranks candidates inside the bounds you specify; it does not establish an experimentally proven optimum or a safe operating setpoint.</p>
@@ -1263,6 +1271,108 @@ sim();
  });
  // Render state from browser storage; model is disabled if its training signature is stale.
  renderModelStatus();
+})();
+</script>
+<script>
+/* Phase 4 STP exploratory model logic. Separate from the campus digester prediction model. */
+(function(){
+ const $=id=>document.getElementById(id);
+ let data=null,lastResults=[];
+ const num=v=>v===null||v===undefined||String(v).trim()===''?null:(Number.isFinite(Number(v))?Number(v):null);
+ const esc=v=>String(v===null||v===undefined?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+ const show=v=>v===null||v===undefined||String(v).trim()===''?'—':esc(v);
+ function status(msg,error=false){$('p4StpStatus').textContent=msg;$('p4StpStatus').style.color=error?'var(--danger)':'var(--muted)';}
+ function parseDate(text){
+  const m=String(text||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m?new Date(Date.UTC(Number(m[3]),Number(m[2])-1,Number(m[1]))).getTime():NaN;
+ }
+ function formatDate(text){return String(text||'—');}
+ function solve(A,b){
+  const n=b.length,M=A.map((r,i)=>r.slice().concat([b[i]]));
+  for(let c=0;c<n;c++){
+   let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
+   if(Math.abs(M[p][c])<1e-12)throw new Error('The STP training matrix is singular; the exploratory model could not be fitted.');
+   [M[c],M[p]]=[M[p],M[c]];
+   const div=M[c][c];for(let j=c;j<=n;j++)M[c][j]/=div;
+   for(let r=0;r<n;r++){if(r===c)continue;const k=M[r][c];for(let j=c;j<=n;j++)M[r][j]-=k*M[c][j];}
+  }
+  return M.map(r=>r[n]);
+ }
+ function fit(train,test){
+  const nF=3;
+  const means=Array.from({length:nF},(_,j)=>train.reduce((a,r)=>a+r.x[j],0)/train.length);
+  const scales=means.map((m,j)=>Math.sqrt(train.reduce((a,r)=>a+Math.pow(r.x[j]-m,2),0)/train.length)||1);
+  const yMean=train.reduce((a,r)=>a+r.y,0)/train.length;
+  const yScale=Math.sqrt(train.reduce((a,r)=>a+Math.pow(r.y-yMean,2),0)/train.length)||1;
+  const X=train.map(r=>[1,...r.x.map((v,j)=>(v-means[j])/scales[j])]);
+  const Y=train.map(r=>(r.y-yMean)/yScale),dim=nF+1;
+  const A=Array.from({length:dim},()=>Array(dim).fill(0)),b=Array(dim).fill(0);
+  X.forEach((row,i)=>{for(let j=0;j<dim;j++){b[j]+=row[j]*Y[i];for(let k=0;k<dim;k++)A[j][k]+=row[j]*row[k];}});
+  for(let j=1;j<dim;j++)A[j][j]+=1; // ridge penalty excluding intercept
+  const coef=solve(A,b);
+  const predict=x=>(coef[0]+x.reduce((sum,v,j)=>sum+v*(0===j?0:0),0))*1; // overwritten below for readability
+  const predictRow=x=>{
+   const z=x.map((v,j)=>(v-means[j])/scales[j]);
+   const yN=coef[0]+z.reduce((sum,v,j)=>sum+v*coef[j+1],0);
+   return yN*yScale+yMean;
+  };
+  const predicted=test.map(r=>predictRow(r.x)),observed=test.map(r=>r.y);
+  const err=predicted.map((v,i)=>v-observed[i]);
+  const mae=err.reduce((a,v)=>a+Math.abs(v),0)/err.length;
+  const rmse=Math.sqrt(err.reduce((a,v)=>a+v*v,0)/err.length);
+  const mean=observed.reduce((a,v)=>a+v,0)/observed.length;
+  const ssTot=observed.reduce((a,v)=>a+(v-mean)*(v-mean),0);
+  const ssRes=err.reduce((a,v)=>a+v*v,0);
+  const r2=observed.length>1&&ssTot>1e-12?1-ssRes/ssTot:null;
+  return {predicted,observed,mae,rmse,r2,trainCount:train.length,testCount:test.length};
+ }
+ async function loadData(){
+  if(data)return data;
+  const response=await fetch('/data/stp_exploratory_dataset.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('Could not load data/stp_exploratory_dataset.json (HTTP '+response.status+'). Refresh after the latest deployment, then retry.');
+  data=await response.json();
+  $('p4StpTankN').textContent=(data.tankReadings||[]).length;
+  $('p4StpFlowN').textContent=(data.flowGasReadings||[]).length;
+  const complete=(data.tankReadings||[]).filter(r=>[r.ph,r.conductivity,r.do,r.temperature].every(v=>num(v)!==null));
+  $('p4StpCompleteN').textContent=complete.length;
+  $('p4StpFlowRows').innerHTML=(data.flowGasReadings||[]).map(r=>'<tr><td>'+show(r.date)+'</td><td>'+show(r.route)+'</td><td>'+show(r.r1)+'</td><td>'+show(r.r2)+'</td><td>'+show(r.r3)+'</td><td>'+show(r.total)+'</td><td>'+show(r.unitPeriod)+'</td><td>'+show(r.confidence)+'</td><td>'+show(r.notes)+'</td></tr>').join('')||'<tr><td colspan="9">No flow/gas records in source file.</td></tr>';
+  return data;
+ }
+ $('p4RunStpDemo').addEventListener('click',async()=>{
+  status('Loading uploaded STP source records and preparing the held-out-date check…');
+  try{
+   const dataset=await loadData();
+   const complete=(dataset.tankReadings||[]).filter(r=>[r.ph,r.conductivity,r.do,r.temperature].every(v=>num(v)!==null)&&Number.isFinite(parseDate(r.date))).map(r=>({
+    date:r.date,dateNum:parseDate(r.date),point:r.point,ph:num(r.ph),
+    x:[num(r.conductivity),num(r.do),num(r.temperature)],confidence:r.confidence,notes:r.notes,recordId:r.recordId
+   }));
+   if(complete.length<12)throw new Error('Only '+complete.length+' complete pH/operating records were found; at least 12 are required for this exploratory split.');
+   const dates=[...new Set(complete.map(r=>r.dateNum))].sort((a,b)=>a-b);
+   if(dates.length<2)throw new Error('At least two distinct dates are required to hold out a date.');
+   const holdout=dates[dates.length-1];
+   const train=complete.filter(r=>r.dateNum!==holdout),test=complete.filter(r=>r.dateNum===holdout);
+   if(train.length<6||test.length<3)throw new Error('Not enough complete rows before/on the held-out date. No prediction model was created.');
+   const output=fit(train,test);
+   lastResults=test.map((r,i)=>({...r,predicted:output.predicted[i],absError:Math.abs(output.predicted[i]-r.ph)}));
+   $('p4StpHoldoutDate').textContent=new Date(holdout).toISOString().slice(0,10);
+   $('p4StpMAE').textContent=output.mae.toFixed(3);
+   $('p4StpRMSE').textContent=output.rmse.toFixed(3);
+   $('p4StpR2').textContent=output.r2===null?'R² unavailable (target variance is zero)':'R² = '+output.r2.toFixed(3);
+   $('p4StpResultsRows').innerHTML=lastResults.map(r=>'<tr><td>'+show(r.date)+'</td><td>'+show(r.point)+'</td><td>'+show(r.ph.toFixed(2))+'</td><td>'+show(r.predicted.toFixed(3))+'</td><td>'+show(r.absError.toFixed(3))+'</td><td>'+show(r.confidence)+'</td><td>'+show(r.notes)+'</td></tr>').join('');
+   $('p4ExportStpDemo').disabled=false;
+   status('Exploratory STP-only check complete: '+train.length+' earlier-date rows fitted; '+test.length+' rows from '+new Date(holdout).toISOString().slice(0,10)+' held out. This is not a methane-yield model or a validated campus prediction.',false);
+  }catch(e){lastResults=[];$('p4ExportStpDemo').disabled=true;status(e.message||'The exploratory STP check failed.',true);}
+ });
+ $('p4ExportStpDemo').addEventListener('click',()=>{
+  if(!lastResults.length)return;
+  const headers=['Date','Sampling point','Measured STP pH (transcribed)','Estimated pH','Absolute error','Transcription confidence','Source notes','Predictor: conductivity (µS/cm)','Predictor: DO (mg/L)','Predictor: temperature (°C)'];
+  const rows=lastResults.map(r=>[r.date,r.point,r.ph,r.predicted,r.absError,r.confidence,r.notes,r.x[0],r.x[1],r.x[2]]);
+  const quote=v=>'"'+String(v===null||v===undefined?'':v).replace(/"/g,'""')+'"';
+  const csv=[headers,...rows].map(row=>row.map(quote).join(',')).join('\r\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='BIT_STP_Exploratory_pH_Check.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ });
 })();
 </script>
 </body></html>
