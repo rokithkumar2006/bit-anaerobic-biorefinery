@@ -1433,6 +1433,7 @@ sim();
    $('p4StpRMSE').textContent=fmt(evaluated.metrics.rmse,3);
    $('p4StpR2').textContent=evaluated.metrics.r2===null?'R² unavailable':('R² = '+fmt(evaluated.metrics.r2,3));
    const publicTestRows=test.map((r,i)=>({...r,predicted:evaluated.predicted[i],absError:Math.abs(evaluated.predicted[i]-r.y)}));
+   const publicTestByKey=new Map(publicTestRows.map(r=>[r.sourceRow+'|'+r.statistic,r]));
    $('p4PublicTestRows').innerHTML=publicTestRows.slice(0,120).map(r=>'<tr><td>'+show(r.station)+'<div class="small">'+show(r.location)+'</div></td><td>'+show(r.state)+'</td><td>'+show(r.year)+'</td><td>'+show(r.statistic)+'</td><td>'+show(r.y)+'</td><td>'+show(fmt(r.predicted,3))+'</td><td>'+show(fmt(r.absError,3))+'</td></tr>').join('')||'<tr><td colspan="7">No held-out rows.</td></tr>';
    // Use public-model training partition only for transfer checks on the user's STP observations.
    const stpRows=(stp.tankReadings||[]);
@@ -1447,7 +1448,7 @@ sim();
    lastExportRows=[];
    parsed.records.forEach(r=>{
     const held=heldStations.has(r.siteKey);
-    const testRow=held?publicTestRows.find(x=>x.sourceRow===r.sourceRow&&x.statistic===r.statistic):null;
+    const testRow=held?publicTestByKey.get(r.sourceRow+'|'+r.statistic):null;
     lastExportRows.push({
      DatasetSource:'India River Water Quality / CPCB-derived public reference',
      RecordType:'Public station-year range summary',
