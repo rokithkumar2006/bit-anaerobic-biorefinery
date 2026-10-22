@@ -113,13 +113,32 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 #p4StpExploratory .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 #p4StpExploratory .actions .btn{width:auto;text-align:center}
 
+
+/* Phase 5 quality assurance */
+.p5-test-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.p5-test{padding:12px;border:1px solid var(--line);background:var(--panel);min-width:0}
+.p5-test b{display:inline-block;max-width:76%;vertical-align:top}
+.p5-test .tag{float:right}
+.p5-test .small{margin:8px 0 0;line-height:1.5}
+.p5-checklist{display:grid;gap:0;border:1px solid var(--line);margin-top:14px}
+.p5-check-row{display:flex;align-items:flex-start;gap:12px;padding:13px;border-bottom:1px solid var(--line);cursor:pointer}
+.p5-check-row:last-child{border-bottom:0}
+.p5-check-row input{margin-top:3px;flex:0 0 auto;accent-color:var(--accent)}
+.p5-check-row span{display:grid;gap:5px;min-width:0}
+.p5-check-row small{font-size:12px;line-height:1.5;color:var(--muted)}
+.p5-limits{padding-left:18px;color:var(--muted);font-size:12px;line-height:1.7}
+#p5AutoStatus,#p5ChecklistStatus{overflow-wrap:anywhere}
+#quality .actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#quality .actions .btn{width:auto;text-align:center}
+@media(max-width:850px){.p5-test-list{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
 <div class="app" id="app">
 <header><div class="brand"><div class="mark">B</div><div><strong>BIT Anaerobic Biorefinery</strong><span>Virtual process study • Smart Campus</span></div></div><div class="header-right"><div class="status"><i></i>Simulation ready</div><button class="btn" id="resetBtn">Reset scenario</button></div></header>
 <div class="layout">
-<aside><div class="nav-section">Workspace</div><nav id="nav"><button class="active" data-page="overview">Overview</button><button data-page="waste">Waste profile</button><button data-page="data">Data & validation</button><button data-page="stpdata">STP operational records</button><button data-page="workflow">Data collection plan</button><button data-page="opensource">Open-source simulations</button><button data-page="digester">Virtual digester</button><button data-page="prediction">Prediction</button><button data-page="optimization">Optimization</button><button data-page="scenarios">What-if study</button><button data-page="circular">Circular outputs</button></nav><div class="nav-section">Notes</div><div style="padding:0 12px;color:var(--muted);font-size:10px;line-height:1.6">No physical sensors are required in this prototype. Process values are simulated or model-derived.</div><div class="nav-section">Site information</div><nav><button data-page="terms">Terms & conditions</button></nav></aside>
+<aside><div class="nav-section">Workspace</div><nav id="nav"><button class="active" data-page="overview">Overview</button><button data-page="waste">Waste profile</button><button data-page="data">Data & validation</button><button data-page="stpdata">STP operational records</button><button data-page="workflow">Data collection plan</button><button data-page="opensource">Open-source simulations</button><button data-page="digester">Virtual digester</button><button data-page="prediction">Prediction</button><button data-page="optimization">Optimization</button><button data-page="scenarios">What-if study</button><button data-page="circular">Circular outputs</button><button data-page="quality">Testing & report</button></nav><div class="nav-section">Notes</div><div style="padding:0 12px;color:var(--muted);font-size:10px;line-height:1.6">No physical sensors are required in this prototype. Process values are simulated or model-derived.</div><div class="nav-section">Site information</div><nav><button data-page="terms">Terms & conditions</button></nav></aside>
 <main>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
 <section class="page active" id="overview"><div class="eyebrow">Project workspace</div><h1 class="title">Campus organic waste, treated as a process problem.</h1><p class="subtitle">A practical simulation environment for testing feedstock mixes, digestion conditions and resource recovery before a physical system is built.</p>
@@ -164,6 +183,23 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="card section-gap"><h3 class="section-title">Interpretation limits</h3><p class="small">Optimization searches the regression model's mathematical response inside user-entered ranges. It cannot extrapolate safely beyond the training data, guarantee anaerobic process stability, or replace literature review, engineering constraints, safety checks and laboratory validation. If the model is unavailable or stale because the measured dataset changed, the search is disabled until the model is retrained.</p></div></section>
 <section class="page" id="scenarios"><div class="eyebrow">05 · What-if study</div><h1 class="title">Scenario comparison</h1><p class="subtitle">Test a change in campus waste or operating conditions and compare it with the working baseline.</p><div class="card" style="margin-top:22px"><div class="form-grid"><div class="field"><label>Food waste change <b id="scenarioFoodVal">+20%</b></label><input class="range" id="scenarioFood" type="range" min="-30" max="50" value="20"></div><div class="field"><label>Temperature change <b id="scenarioTempVal">0°C</b></label><input class="range" id="scenarioTemp" type="range" min="-8" max="8" value="0"></div><div class="field"><label>OLR change <b id="scenarioOlrVal">0.0</b></label><input class="range" id="scenarioOlr" type="range" min="-1" max="2" step="0.1" value="0"></div></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Baseline</h3><div class="compare"><div><span class="small">Methane</span><b>124 m³/d</b></div><div><span class="small">Energy</span><b>1,230 kWh/d</b></div></div></div><div class="card"><h3 class="section-title">Scenario</h3><div class="compare"><div><span class="small">Methane</span><b id="scenarioCH4">130 m³/d</b></div><div><span class="small">Energy</span><b id="scenarioEnergy">1,290 kWh/d</b></div></div><div class="recommend" style="margin-top:15px" id="scenarioNote">Higher food-waste availability improves the modeled output, provided the loading remains inside the stable range.</div></div></div></section>
 <section class="page" id="circular"><div class="eyebrow">06 · Resource recovery</div><h1 class="title">Circular outputs</h1><p class="subtitle">Translate the simulated digestion result into useful campus-level indicators. These are planning estimates, not measured plant performance.</p><div class="grid kpis" style="margin-top:22px"><div class="card"><div class="kpi-label">Methane</div><div class="kpi-value">124 m³/d</div><div class="kpi-note">Baseline simulation</div></div><div class="card"><div class="kpi-label">Energy potential</div><div class="kpi-value">1,230 kWh/d</div><div class="kpi-note">Before conversion losses</div></div><div class="card"><div class="kpi-label">Digestate</div><div class="kpi-value">445 kg/d</div><div class="kpi-note">Potential resource</div></div><div class="card"><div class="kpi-label">Waste diverted</div><div class="kpi-value">600 kg/d</div><div class="kpi-note">Working scenario</div></div></div><div class="grid two"><div class="card"><h3 class="section-title">Recovery chain</h3><div class="flow" style="grid-template-columns:1fr"><div class="node"><strong>Organic waste</strong><span>Campus food and green waste</span></div><div class="node"><strong>Biogas</strong><span>Methane-rich renewable gas</span></div><div class="node"><strong>Energy</strong><span>Potential electricity / heat recovery</span></div><div class="node"><strong>Digestate</strong><span>Potential biofertilizer feedstock after safety validation</span></div></div></div><div class="card"><h3 class="section-title">Carbon accounting</h3><div class="metric"><div class="metric-top"><span>Waste diversion</span><b>600 kg/d</b></div><div class="meter"><span style="width:82%"></span></div></div><div class="metric"><div class="metric-top"><span>Renewable energy potential</span><b>1,230 kWh/d</b></div><div class="meter"><span style="width:73%"></span></div></div><div class="recommend"><b>Next implementation:</b> add the selected emission factors and campus electricity baseline, then calculate annual CO₂-equivalent reduction transparently.</div></div></div><p class="footnote">All prototype values shown on this page are illustrative. Replace them with your measured campus data and documented literature parameters before using them as research results.</p></section>
+<section class="page" id="quality"><div class="eyebrow">05 · Phase 5 · Quality assurance</div><h1 class="title">Testing & research readiness</h1><p class="subtitle">Run technical smoke tests, record manual acceptance checks, and export a test report for your project documentation. A software check confirms a feature responds; it does not validate the scientific model.</p>
+<div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Automated checks passed</div><div class="kpi-value" id="p5AutoPassed">0 / 4</div><div class="kpi-note">Re-run after a deployment</div></div><div class="card"><div class="kpi-label">Manual checks recorded</div><div class="kpi-value" id="p5ManualProgress">0 / 10</div><div class="kpi-note">Saved only in this browser</div></div><div class="card"><div class="kpi-label">Scientific validation</div><div class="kpi-value">Pending</div><div class="kpi-note">Requires verified measured data</div></div></div>
+<div class="card section-gap"><h3 class="section-title">A. Automated smoke tests</h3><p class="small">These tests make small read-only requests, plus one short PyADM1ODE run. Test outputs are discarded and are not saved as measured observations or training records.</p><div class="actions"><button type="button" class="btn primary" id="p5RunChecks">Run automated checks</button><span id="p5AutoStatus" class="small" role="status" aria-live="polite">Not run on this visit.</span></div><div class="p5-test-list" id="p5AutoResults"><div class="p5-test"><b>1. API health</b><span class="tag warn">Not run</span><p class="small">Verify that /api/health responds and reports model-package status.</p></div><div class="p5-test"><b>2. Bundled STP records</b><span class="tag warn">Not run</span><p class="small">Verify that the source JSON is accessible and has 27 tank readings and 12 flow/gas entries.</p></div><div class="p5-test"><b>3. PyADM1ODE execution</b><span class="tag warn">Not run</span><p class="small">Make a one-day technical test run and check for finite gas/methane and pH outputs.</p></div><div class="p5-test"><b>4. Public reference source</b><span class="tag warn">Not run</span><p class="small">Verify that the external water-quality CSV is reachable and non-empty.</p></div></div><p class="footnote">A passing model smoke test means the API executed, not that its proxy substrates or outputs are validated for BIT. Public CSV availability depends on the third-party host and network access.</p></div>
+<div class="card section-gap"><h3 class="section-title">B. Manual acceptance checklist</h3><p class="small">Tick an item only after you test it on the live website. Progress is stored locally in this browser; it is not an independent audit certificate.</p><div class="actions"><button type="button" class="btn" id="p5CheckAll">Mark all reviewed</button><button type="button" class="btn" id="p5ClearChecklist">Clear checklist</button><button type="button" class="btn primary" id="p5ExportReport">Export QA report CSV</button></div><div id="p5Checklist" class="p5-checklist">
+<label class="p5-check-row"><input type="checkbox" data-p5-id="navigation"><span><b>Navigation and responsive layout</b><small>Open every sidebar page on desktop/mobile; confirm no broken or overlapping controls.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="waste"><span><b>Waste profile editing and backup</b><small>Add/edit one clearly labelled test row, export it, re-import it, and remove the test row afterwards.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="stp"><span><b>STP operational records</b><small>Check tank and flow/gas counts, enter one clearly labelled test record, and verify Excel import/export without changing source transcription silently.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="phase3"><span><b>Phase 3 forms and Excel workbook</b><small>Test sample/run IDs, required fields, duplicate rejection, workbook export/re-import and deletion. Do not enter invented values as real results.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="model"><span><b>Mechanistic model and inputs</b><small>Run the same settings twice, record inputs and outputs, and inspect any error. Do not count software output as experimental data.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="public"><span><b>Public water-quality analysis</b><small>Check source link, held-out station split, metrics, STP cross-source labels and combined CSV export.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="mlgate"><span><b>Campus ML training gate</b><small>Confirm the main biogas model remains untrained until suitable measured feedstock/run pairs are entered.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="optimization"><span><b>Optimization gate and constraints</b><small>Confirm candidate search is disabled until a current model is trained, and results carry appropriate limits.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="provenance"><span><b>Scientific labels and provenance</b><small>Confirm measured, public reference, simulated and illustrative values are distinguishable and source notes/units are present.</small></span></label>
+<label class="p5-check-row"><input type="checkbox" data-p5-id="backup"><span><b>Backups and report package</b><small>Save exported workbooks/CSVs and keep the original notebook/workbook unchanged for traceability.</small></span></label>
+</div><p id="p5ChecklistStatus" class="small" role="status" aria-live="polite">0 of 10 manual checks reviewed.</p></div>
+<div class="grid two section-gap"><div class="card"><h3 class="section-title">C. Known limitations to document</h3><ul class="p5-limits"><li>No campus food/garden feedstock characterization dataset is available yet.</li><li>No measured digester gas/methane target dataset exists for training or external validation.</li><li>The PyADM1ODE adapter uses reference substrate proxies and an assumed feed density.</li><li>The public pH model uses surface-water station/year minimum/maximum summaries; its STP comparison is cross-source only.</li><li>Several STP values and gas-flow units/intervals need verification against the original notebook and instruments.</li><li>Browser-local records do not automatically sync between devices; exported files are required for backup.</li></ul></div><div class="card"><h3 class="section-title">D. Research handover checklist</h3><p class="small">Before submitting a final report or paper, attach the test report, keep a copy of the original source workbook, document how measurements were taken, and show the exact model inputs/configuration for every reported simulation.</p><p class="small">Report held-out results with sample/station counts, split method, MAE/RMSE/R² and the limitations of the source data. Avoid claims of real-time sensor monitoring, campus-specific AI validation, or physical plant performance unless independently demonstrated.</p><a class="btn" href="https://github.com/rokithkumar2006/bit-anaerobic-biorefinery" target="_blank" rel="noopener noreferrer">Open project repository</a></div></div>
+<p class="footnote">This page is a QA aid, not certification, a safety review, or proof of scientific validity. Keep raw sources and original observations for auditability.</p></section>
 <section class="page" id="terms"><div class="eyebrow">Site information</div><h1 class="title">Terms & conditions</h1><p class="subtitle">Conditions for using this academic prototype.</p><div class="card section-gap"><h3 class="section-title">1. Purpose</h3><p>This website is an educational and research prototype for exploring anaerobic digestion of campus organic waste. It is not a certified engineering design, operational plant controller or commercial guarantee.</p><h3 class="section-title">2. Data and estimates</h3><p>Unless a value is explicitly identified as measured or supported by a cited source, treat it as an illustrative simulation input or output. Results depend on assumptions and should not be presented as experimental findings.</p><h3 class="section-title">3. No operational reliance</h3><p>Do not use the calculations alone to design, construct, operate or make safety decisions for a physical digester. Obtain qualified engineering review and validate process parameters experimentally before implementation.</p><h3 class="section-title">4. Research use and attribution</h3><p>Users are responsible for checking source material, citing published data, and distinguishing their own measurements from literature values. Do not submit simulated results as measured observations.</p><h3 class="section-title">5. Availability and accuracy</h3><p>The prototype is provided for demonstration and may contain errors or incomplete features. No warranty is made that outputs are complete, accurate or suitable for a particular purpose.</p><h3 class="section-title">6. Changes</h3><p>These terms may be updated as the project develops. The page should be reviewed before public deployment and adapted to the institution's requirements.</p><p class="footnote">Last updated: 12 October 2026. This draft is general project information, not legal advice.</p></div></section>
 </main></div></div>
 <span id="simDigestate" hidden></span>
@@ -1491,6 +1527,112 @@ sim();
   a.href=url;a.download='BIT_Combined_Public_Water_Quality_and_STP_Exploratory_Data.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   status('Combined CSV exported. Public reference and STP records remain source-labelled, and STP cross-source differences are not validation metrics.');
  });
+})();
+</script>
+<script>
+/* Phase 5 QA report logic */
+(function(){
+ const STORAGE='bitPhase5QAChecklist_v1';
+ const $=id=>document.getElementById(id);
+ const PUBLIC_CSV_URL='https://raw.githubusercontent.com/KunalLatkar/RiverWaterQualityDataset/main/RiverWaterQualityOverYears.csv';
+ const autoDefs=[
+  {id:'api-health',title:'API health',description:'GET /api/health responds with status ok and model package status.'},
+  {id:'stp-json',title:'Bundled STP data',description:'GET /data/stp_exploratory_dataset.json responds and includes the expected 27 tank and 12 flow/gas rows.'},
+  {id:'model-smoke',title:'PyADM1ODE simulation',description:'POST /api/simulate runs a short disposable test case and returns finite model outputs.'},
+  {id:'public-csv',title:'Public reference CSV',description:'The external public source responds and returns non-empty CSV content.'}
+ ];
+ let autoResults={},finishedAt=null;
+ function safeLoad(){try{return JSON.parse(localStorage.getItem(STORAGE)||'{}')}catch(e){return {}}}
+ function saveChecklist(){const o={};document.querySelectorAll('[data-p5-id]').forEach(el=>o[el.dataset.p5Id]=!!el.checked);try{localStorage.setItem(STORAGE,JSON.stringify(o))}catch(e){}updateManualProgress()}
+ function updateManualProgress(){
+  const all=[...document.querySelectorAll('[data-p5-id]')],n=all.filter(x=>x.checked).length;
+  $('p5ManualProgress').textContent=n+' / '+all.length;
+  $('p5ChecklistStatus').textContent=n+' of '+all.length+' manual checks reviewed.';
+ }
+ function esc(v){return String(v===null||v===undefined?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+ function renderAuto(){
+  const passed=autoDefs.filter(t=>autoResults[t.id]&&autoResults[t.id].pass).length;
+  $('p5AutoPassed').textContent=passed+' / '+autoDefs.length;
+  $('p5AutoResults').innerHTML=autoDefs.map(t=>{
+   const r=autoResults[t.id];
+   const label=!r?'Not run':r.pass?'Passed':'Failed';
+   const cls=!r?'warn':r.pass?'good':'bad';
+   return '<div class="p5-test"><b>'+esc(t.title)+'</b><span class="tag '+cls+'">'+label+'</span><p class="small">'+esc(r?r.detail:t.description)+'</p></div>';
+  }).join('');
+ }
+ async function checkHealth(){
+  const response=await fetch('/api/health',{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const d=await response.json();
+  if(d.status!=='ok')throw new Error('Response did not contain status ok.');
+  return {pass:true,detail:'HTTP '+response.status+'; engine '+(d.engine||'not specified')+'; package installed '+String(!!d.model_integrated)+'.'};
+ }
+ async function checkStp(){
+  const response=await fetch('/data/stp_exploratory_dataset.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const d=await response.json(),t=(d.tankReadings||[]).length,f=(d.flowGasReadings||[]).length;
+  if(t!==27||f!==12)throw new Error('Expected 27 tank and 12 flow/gas entries; found '+t+' and '+f+'.');
+  return {pass:true,detail:'JSON loaded from '+(d.sourceFile||'source file')+'; '+t+' tank and '+f+' flow/gas records.'};
+ }
+ async function checkModel(){
+  const body={feed_rate_kg_day:600,food_share_pct:55,garden_share_pct:15,temperature_c:37,hrt_days:25,duration_days:1,timestep_hours:24};
+  const response=await fetch('/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+  let d;try{d=await response.json()}catch(e){throw new Error('HTTP '+response.status+'; response was not JSON.')}
+  if(!response.ok)throw new Error('HTTP '+response.status+': '+(d.detail||'simulation request failed'));
+  const gas=Number(d.tail_period_mean&&d.tail_period_mean.biogas_m3_day);
+  const methane=Number(d.tail_period_mean&&d.tail_period_mean.methane_m3_day);
+  const ph=Number(d.final&&d.final.pH_model_output);
+  if(!Number.isFinite(gas)||!Number.isFinite(methane)||!Number.isFinite(ph))throw new Error('API response did not contain finite gas, methane and pH outputs.');
+  return {pass:true,detail:'Disposable 1-day run completed in '+(d.runtime_seconds??'unknown')+' s; gas '+gas.toFixed(4)+' m³/day, methane '+methane.toFixed(4)+' m³/day, pH '+ph.toFixed(3)+'. Test output was not saved as a project measurement.'};
+ }
+ async function checkPublic(){
+  const response=await fetch(PUBLIC_CSV_URL,{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const text=await response.text();
+  if(text.length<1000||!text.toLowerCase().includes('ph'))throw new Error('Source response was too short or did not resemble the expected water-quality CSV.');
+  return {pass:true,detail:'HTTP '+response.status+'; downloaded '+text.length.toLocaleString()+' characters. Live analysis still applies its own schema/completeness checks.'};
+ }
+ $('p5RunChecks').addEventListener('click',async()=>{
+  $('p5RunChecks').disabled=true;
+  $('p5AutoStatus').textContent='Running health, dataset, model and public-source checks…';
+  autoResults={};renderAuto();
+  const checks=[checkHealth,checkStp,checkModel,checkPublic];
+  for(let i=0;i<autoDefs.length;i++){
+   try{autoResults[autoDefs[i].id]=await checks[i]()}
+   catch(e){autoResults[autoDefs[i].id]={pass:false,detail:e&&e.message?e.message:'Check failed unexpectedly.'}}
+   renderAuto();
+  }
+  finishedAt=new Date().toISOString();
+  const pass=autoDefs.filter(t=>autoResults[t.id]&&autoResults[t.id].pass).length;
+  $('p5AutoStatus').textContent=pass+' of '+autoDefs.length+' automated checks passed at '+finishedAt+'.';
+  $('p5RunChecks').disabled=false;
+ });
+ document.querySelectorAll('[data-p5-id]').forEach(el=>{
+  const saved=safeLoad();el.checked=!!saved[el.dataset.p5Id];el.addEventListener('change',saveChecklist);
+ });
+ $('p5CheckAll').addEventListener('click',()=>{document.querySelectorAll('[data-p5-id]').forEach(el=>el.checked=true);saveChecklist()});
+ $('p5ClearChecklist').addEventListener('click',()=>{document.querySelectorAll('[data-p5-id]').forEach(el=>el.checked=false);saveChecklist()});
+ $('p5ExportReport').addEventListener('click',()=>{
+  const rows=[['Section','Test ID','Test / checklist item','Status','Details / notes','Recorded at']];
+  const now=new Date().toISOString();
+  autoDefs.forEach(t=>{
+   const r=autoResults[t.id];rows.push(['Automated',t.id,t.title,r?(r.pass?'PASS':'FAIL'):'NOT RUN',r?r.detail:t.description,finishedAt||'']);
+  });
+  document.querySelectorAll('[data-p5-id]').forEach(el=>{
+   const row=el.closest('.p5-check-row'),title=row&&row.querySelector('b'),note=row&&row.querySelector('small');
+   rows.push(['Manual',el.dataset.p5Id,title?title.textContent:el.dataset.p5Id,el.checked?'REVIEWED':'NOT REVIEWED',note?note.textContent:'',now]);
+  });
+  rows.push(['Scientific status','campus-biogas-model','Campus biogas/methane model','NOT VALIDATED','No suitable measured campus feedstock + digester output dataset has been entered. Do not interpret software test results as scientific validation.',now]);
+  rows.push(['Scientific status','public-stp-pH','Public reference pH analysis','EXPLORATORY ONLY','Surface-water station/year summaries are applied to STP observations only as a cross-source comparison, not validated STP prediction.',now]);
+  rows.push(['Scientific status','stp-workbook','STP transcription','VERIFY SOURCE','Several source readings, units and flow measurement intervals require verification against the original notebook/instruments.',now]);
+  const q=v=>'"'+String(v===null||v===undefined?'':v).replace(/"/g,'""')+'"';
+  const csv=rows.map(r=>r.map(q).join(',')).join('\r\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='BIT_Phase5_QA_Report_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  $('p5AutoStatus').textContent='QA report CSV exported. Report distinguishes automated checks, manual reviews and outstanding scientific validation.';
+ });
+ updateManualProgress();renderAuto();
 })();
 </script>
 </body></html>
