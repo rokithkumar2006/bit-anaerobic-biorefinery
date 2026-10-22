@@ -1,6 +1,6 @@
 {
-  "sourceFile": "BIT_STP_data_sample(4).xlsx",
-  "sourceNote": "Transcribed from the latest uploaded workbook BIT_STP_data_sample(4).xlsx. Preliminary notebook-photo transcription, not a validated final dataset. Tank readings are STP wastewater/treatment-process observations. Gas-flow units and intervals require confirmation. Blank values mean not clearly recorded, not zero.",
+  "sourceFile": "BIT_STP_Operational_Data_20261022.xlsx",
+  "sourceNote": "Based on the user-uploaded BIT_STP_Operational_Data_20261022.xlsx workbook export. It contains 27 tank-reading records and 12 flow/gas records; its Source image/page field is marked Website entry, so it is an exported operational dataset rather than verified original notebook-page images. Some values remain low/medium confidence and must be checked against original source notes. Tank readings are STP wastewater/treatment-process observations, not campus food/garden feedstock measurements. Flow/gas units and measurement intervals are unclear and are not converted into methane yield. Blank values mean not clearly recorded, not zero.",
   "tankReadings": [
     {
       "recordId": "T-001",
