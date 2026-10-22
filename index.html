@@ -1348,10 +1348,13 @@ sim();
   }
   const records=[];
   all.slice(1).forEach((row,index)=>{
-   const station=String(pick(row,cols,'station')||'').trim();
-   const location=String(pick(row,cols,'location')||'').trim();
+   const stationRaw=String(pick(row,cols,'station')||'').trim();
+   const locationRaw=String(pick(row,cols,'location')||'').trim();
    const state=String(pick(row,cols,'state')||'').trim();
    const year=String(pick(row,cols,'year')||'').trim();
+   const missingId=value=>!value||/^(?:-|—|na|n\/a|nan|null|none)$/i.test(value);
+   const station=missingId(stationRaw)?'':stationRaw;
+   const location=missingId(locationRaw)?'':locationRaw;
    const siteKey=station||location||('source-row-'+(index+2));
    const groupKey=siteKey+'|'+year;
    for(const stat of ['Min','Max']){
