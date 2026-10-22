@@ -151,6 +151,13 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 @media(max-width:760px){.mobile-scroll-hint{display:block}.mobile-data-table-scroll table.table th:first-child,.mobile-data-table-scroll table.table td:first-child{position:sticky;left:0;background:var(--panel);box-shadow:1px 0 var(--line);z-index:2}.mobile-data-table-scroll table.table th:first-child{z-index:4}.mobile-data-table-scroll table.table td:first-child{max-width:128px;min-width:88px;white-space:normal;overflow-wrap:anywhere}.mobile-data-table-scroll table.table th:first-child{max-width:128px;min-width:88px}.mobile-data-table-scroll table.table{font-size:11px}.mobile-data-table-scroll table.table th,.mobile-data-table-scroll table.table td{padding:8px 7px}#dashboardQuickWhatIf .form-grid{grid-template-columns:1fr}.backup-reminder-actions .btn{font-size:11px;padding:8px 10px}}
 
 
+
+.backup-report-action{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:10px;border-top:1px solid var(--line)}
+.backup-report-action strong{font-size:13px}
+.backup-report-action p{font-size:12px;color:var(--muted);line-height:1.5;margin:3px 0 0}
+.backup-report-action .btn{flex:0 0 auto;white-space:normal;text-align:center}
+@media(max-width:900px){.backup-report-action{grid-column:auto;align-items:flex-start;flex-direction:column}.backup-report-action .btn{width:auto;max-width:100%}}
+
 /* Strategic research profile, Gompertz and printable feasibility report */
 #gompertzCurvePanel .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .gompertz-chart-wrap{width:100%;overflow-x:auto;margin-top:8px}
@@ -199,7 +206,7 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <main>
 <div class="backup-reminder" id="backupReminder" role="region" aria-label="Browser data backup reminder">
  <div class="backup-reminder-copy"><strong>Protect your project data</strong><p>Records saved by this site live in this browser and do not sync across devices. Download a backup before clearing browser data or switching devices. Save pending edits before backing up.</p><p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p></div>
- <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
+ <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div><div class="backup-report-action"><div><strong>Need a printable project summary?</strong><p>Generate a campus feasibility screening report using the current scenario and saved record counts.</p></div><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
  <p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
 </div>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
