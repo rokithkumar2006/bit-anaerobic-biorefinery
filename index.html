@@ -1755,12 +1755,23 @@ sim();
   const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
- $('downloadLocalBackupBtn').addEventListener('click',()=>{
+ $('downloadLocalBackupBtn').addEventListener('click',async()=>{
   try{
    const backup=buildBackup();
+   try{
+    const response=await fetch('/data/stp_exploratory_dataset.json',{cache:'no-store'});
+    if(response.ok){
+     const source=await response.json();
+     backup.bundledReference={path:'data/stp_exploratory_dataset.json',sourceFile:source.sourceFile||'STP operational source data',sourceNote:source.sourceNote||'',data:source};
+    }else{
+     backup.bundleWarning='The static STP reference file could not be retrieved during backup; browser-stored records and scenarios are still included.';
+    }
+   }catch(e){
+    backup.bundleWarning='The static STP reference file could not be retrieved during backup; browser-stored records and scenarios are still included.';
+   }
    downloadText('BIT_Anaerobic_Biorefinery_Local_Backup_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(backup,null,2),'application/json;charset=utf-8');
    const now=new Date().toISOString();try{localStorage.setItem('bitBackupLastExportAt_v1',now)}catch(e){}
-   lastBackupStatus();setStatus('Backup file generated. Check your Downloads folder and copy it to a safe location such as cloud storage or an external drive.');
+   lastBackupStatus();setStatus('Full backup file generated. It includes available browser records, current scenario settings, and the bundled STP source workbook transcription when the source file was reachable. Check Downloads and copy it to a safe location.');
   }catch(e){setStatus('Could not create the backup file: '+(e.message||'browser error'),true)}
  });
  $('restoreLocalBackupInput').addEventListener('change',async e=>{
