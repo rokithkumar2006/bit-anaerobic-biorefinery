@@ -150,6 +150,45 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 @media(max-width:900px){.backup-reminder{grid-template-columns:1fr;top:0;padding:10px}.backup-reminder-actions{justify-content:flex-start}.backup-action-status{grid-column:auto}}
 @media(max-width:760px){.mobile-scroll-hint{display:block}.mobile-data-table-scroll table.table th:first-child,.mobile-data-table-scroll table.table td:first-child{position:sticky;left:0;background:var(--panel);box-shadow:1px 0 var(--line);z-index:2}.mobile-data-table-scroll table.table th:first-child{z-index:4}.mobile-data-table-scroll table.table td:first-child{max-width:128px;min-width:88px;white-space:normal;overflow-wrap:anywhere}.mobile-data-table-scroll table.table th:first-child{max-width:128px;min-width:88px}.mobile-data-table-scroll table.table{font-size:11px}.mobile-data-table-scroll table.table th,.mobile-data-table-scroll table.table td{padding:8px 7px}#dashboardQuickWhatIf .form-grid{grid-template-columns:1fr}.backup-reminder-actions .btn{font-size:11px;padding:8px 10px}}
 
+
+/* Strategic research profile, Gompertz and printable feasibility report */
+#gompertzCurvePanel .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.gompertz-chart-wrap{width:100%;overflow-x:auto;margin-top:8px}
+#gompertzChart{display:block;width:100%;min-width:520px;height:auto;background:var(--panel);border:1px solid var(--line)}
+.gompertz-grid{stroke:var(--line);stroke-width:1}
+.gompertz-axis{stroke:var(--muted);stroke-width:1.4}
+.gompertz-tick{fill:var(--muted);font-size:12px}
+.gompertz-label{fill:var(--text);font-size:13px}
+.gompertz-line{fill:none;stroke:var(--accent);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.gompertz-endpoint{fill:var(--accent);stroke:var(--panel);stroke-width:2}
+#feasibilityPrintReport{display:none}
+#feasibilityPrintReport .report-page{font-family:Arial,Helvetica,sans-serif;color:#202820;background:#fff;line-height:1.45;font-size:10.5pt;max-width:100%}
+#feasibilityPrintReport h1{font-size:23pt;line-height:1.2;margin:0 0 6mm}
+#feasibilityPrintReport h2{font-size:14pt;border-bottom:1px solid #bac4bb;padding-bottom:2mm;margin:7mm 0 3mm}
+#feasibilityPrintReport h3{font-size:11pt;margin:4mm 0 2mm}
+#feasibilityPrintReport p,#feasibilityPrintReport li{font-size:9.5pt}
+#feasibilityPrintReport .report-meta{color:#4e6254;font-size:9pt;margin-bottom:6mm}
+#feasibilityPrintReport .report-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:4mm 0}
+#feasibilityPrintReport .report-kpi{border:1px solid #c9d2ca;padding:3mm}
+#feasibilityPrintReport .report-kpi strong{display:block;font-size:14pt;margin-top:1mm}
+#feasibilityPrintReport table{width:100%;border-collapse:collapse;font-size:8.5pt;margin:3mm 0}
+#feasibilityPrintReport th,#feasibilityPrintReport td{border:1px solid #c9d2ca;padding:2mm;text-align:left;vertical-align:top}
+#feasibilityPrintReport th{background:#edf1ed}
+#feasibilityPrintReport .report-note{border-left:3px solid #35664f;background:#f2f5f2;padding:3mm;margin:3mm 0}
+#feasibilityPrintReport .report-footer{margin-top:8mm;padding-top:3mm;border-top:1px solid #c9d2ca;color:#59665c;font-size:8pt}
+@page{size:A4;margin:14mm}
+@media print{
+ body.printing-feasibility *{visibility:hidden!important}
+ body.printing-feasibility #feasibilityPrintReport,
+ body.printing-feasibility #feasibilityPrintReport *{visibility:visible!important}
+ body.printing-feasibility #feasibilityPrintReport{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#202820!important;z-index:999999!important}
+ body.printing-feasibility #feasibilityPrintReport .report-page{max-width:none}
+ body.printing-feasibility #feasibilityPrintReport .report-kpi,body.printing-feasibility #feasibilityPrintReport tr{break-inside:avoid;page-break-inside:avoid}
+ body.printing-feasibility #feasibilityPrintReport h2{break-after:avoid;page-break-after:avoid}
+ body.printing-feasibility #feasibilityPrintReport a{color:#202820;text-decoration:none}
+}
+@media(max-width:760px){#gompertzCurvePanel .grid{grid-template-columns:1fr}.backup-reminder-actions .btn{max-width:100%}}
+
 </style>
 </head>
 <body>
@@ -160,7 +199,7 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <main>
 <div class="backup-reminder" id="backupReminder" role="region" aria-label="Browser data backup reminder">
  <div class="backup-reminder-copy"><strong>Protect your project data</strong><p>Records saved by this site live in this browser and do not sync across devices. Download a backup before clearing browser data or switching devices. Save pending edits before backing up.</p><p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p></div>
- <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div>
+ <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
  <p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
 </div>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
@@ -193,7 +232,9 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="card section-gap"><h3 class="section-title">Your added flow / gas readings</h3><p class="small">These are entries you add or import using the form above. Delete a row if it was entered incorrectly; original sample transcriptions remain unchanged.</p><div style="overflow-x:auto"><table class="table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Reading I</th><th>Reading II</th><th>Reading III</th><th>Total as written</th><th>Unit / period</th><th>Confidence / note</th><th>Action</th></tr></thead><tbody id="addedFlowRows"><tr><td colspan="9" class="small">No additional flow or gas readings saved in this browser.</td></tr></tbody></table></div></div>
 <div class="grid two section-gap"><div class="card"><h3 class="section-title">How this dataset can support the project</h3><ul style="font-size:12px;line-height:1.8;padding-left:18px"><li>Track pH, conductivity, dissolved oxygen and other STP process indicators after confirming columns and units.</li><li>Review the difference between upstream and final-treated sample readings once the notebook values are verified.</li><li>Keep tank readings and flow/gas records in separate tables, preserving the original date, sampling point, source page and confidence.</li></ul></div><div class="card"><h3 class="section-title">Important limitation</h3><div class="recommend"><b>Not used as digester-feedstock or ML target data.</b> These STP wastewater records do not directly describe hostel/canteen organic-waste composition or validated methane yield. Confirm low-confidence values, units and meter intervals with the original notebook and STP staff before analysis.</div></div></div></section><section class="page" id="workflow"><div class="eyebrow">Research planning · Low budget</div><h1 class="title">Data collection plan</h1><p class="subtitle">A staged workflow for starting from zero with partial laboratory access. Record measured campus data separately from literature values and simulated outputs.</p><div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Stage 1</div><h3 class="section-title" style="margin-top:8px">Campus waste survey</h3><p>For 7 consecutive days, record date, source, waste category, wet weight in kg, collection period and unusual conditions. Keep hostel, canteen and garden streams separate.</p><span class="tag">Scale and logbook</span></div><div class="card"><div class="kpi-label">Stage 2</div><h3 class="section-title" style="margin-top:8px">Available lab tests</h3><p>Ask the lab supervisor which tests and replicates are feasible. Prioritize moisture / total solids and volatile solids for representative samples. Record method, units and sample ID.</p><span class="tag">Use existing facilities</span></div><div class="card"><div class="kpi-label">Stage 3</div><h3 class="section-title" style="margin-top:8px">Literature supplement</h3><p>Find published anaerobic digestion experiments using similar food or vegetable waste. Extract feedstock, operating conditions, gas yield, methane fraction, units and the exact paper reference.</p><span class="tag">No sensor purchase</span></div></div><div class="grid two section-gap"><div class="card"><h3 class="section-title">Minimum dataset fields</h3><table class="table"><thead><tr><th>Field</th><th>Source</th></tr></thead><tbody><tr><td>Date, source, wet weight, category</td><td>Campus survey</td></tr><tr><td>Moisture / TS</td><td>Lab if available</td></tr><tr><td>VS</td><td>Lab if available</td></tr><tr><td>C/N, pH, alkalinity, ammonia</td><td>Lab or documented literature</td></tr><tr><td>Temperature, HRT, OLR, inoculum ratio</td><td>Published experiment or planned scenario</td></tr><tr><td>Biogas yield, methane fraction / yield</td><td>Published experiment; measured data if a digester test is conducted</td></tr></tbody></table><p class="footnote">A campus waste survey alone cannot provide methane yield. That output requires digestion experiments or suitable published experimental records.</p></div><div class="card"><h3 class="section-title">Sample handling and quality</h3><ul style="font-size:12px;line-height:1.8;padding-left:18px"><li>Get campus and laboratory approval before collecting samples.</li><li>Label each sample with a unique ID, date, source and collection time.</li><li>Follow the lab's approved sample storage and test procedures.</li><li>Run replicates where feasible and keep raw observations, not just averages.</li><li>Never invent missing values; use “not measured” and cite literature sources.</li><li>Keep simulation outputs in a separate table from measured or published results.</li></ul></div></div><div class="card section-gap"><h3 class="section-title">Suggested spreadsheet columns</h3><div class="recommend">Record ID · date · waste source · waste category · wet weight (kg) · moisture (%) · TS (%) · VS (state basis) · C/N · pH · temperature (°C) · HRT (d) · OLR (kg VS/m³/d) · inoculum ratio (define basis) · biogas volume (state units and duration) · methane (%) · methane yield (state basis) · data source type · paper / method reference · notes</div><p class="footnote">For ML, use comparable experimental rows with measured outputs. Keep papers and experiments identifiable, and split training/test data by experiment or study where appropriate to reduce leakage. Do not report predictive accuracy until independent validation is done.</p></div></section>
 <section class="page" id="opensource"><div class="eyebrow">Research resources</div><h1 class="title">Open-source simulation tools</h1><p class="subtitle">Existing research software can help you build a more defensible anaerobic digestion model. These are external projects, not built-in engines in this website. Check each repository's license, installation requirements and documentation before using it.</p><div class="grid two" style="margin-top:22px"><div class="card"><h3 class="section-title">QSDsan</h3><p class="small">Best starting point for integrated process and resource-recovery studies.</p><p>Python framework for process modelling, dynamic simulation, techno-economic analysis and life-cycle assessment. It includes anaerobic digestion models and unit operations.</p><p><a href="https://github.com/QSD-Group/QSDsan" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Source code and license</a> · <a href="https://qsdsan.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Documentation</a></p><span class="tag">Recommended for system-level study</span></div><div class="card"><h3 class="section-title">PyADM1</h3><p class="small">A direct route to learning the ADM1 model.</p><p>Python implementation of Anaerobic Digestion Model No. 1. It uses SciPy to simulate dynamic reactor behaviour and can be adapted with characterized feed and initial conditions.</p><p><a href="https://github.com/CaptainFerMag/PyADM1" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Source code and license</a></p><span class="tag">Useful for model learning</span></div><div class="card"><h3 class="section-title">ADM1F</h3><p class="small">For faster mechanistic simulation.</p><p>An open-source implementation of ADM1 designed for fast, numerically stable simulation. Review its PETSc setup and tutorial before deciding whether it fits your computing environment.</p><p><a href="https://github.com/lanl/ADM1F" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Source code</a> · <a href="https://elchin.github.io/ADM1F_docs/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Tutorial</a></p><span class="tag">Advanced numerical model</span></div><div class="card"><h3 class="section-title">PyADM1ODE</h3><p class="small">For plant-level biogas modelling and optimization.</p><p>Python framework for modelling and simulating agricultural biogas plants with ADM1, including configurable plant components and example notebooks. Check its current documentation and dependencies.</p><p><a href="https://github.com/dgaida/PyADM1ODE" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Source code and license</a></p><span class="tag">Plant configuration focus</span></div></div><div class="card section-gap"><h3 class="section-title">How to use these in the BIT project</h3><ol style="font-size:12px;line-height:1.8;padding-left:20px"><li>Start with QSDsan or PyADM1 and run an included example before changing parameters.</li><li>Collect campus waste quantity and characterization data, then document all literature-derived parameters.</li><li>Compare simulated outputs against published or measured biogas and methane yields. Do not report model accuracy until validation is complete.</li><li>Keep this website as the project dashboard, and connect a chosen model through a Python backend only after the model runs reliably.</li></ol><p class="footnote">Open-source does not mean zero setup. These tools are primarily code-based and may require Python, scientific packages and model calibration. Their outputs are not automatically validated for BIT campus waste.</p></div></section>
-<section class="page" id="digester"><div class="eyebrow">02 · Interactive process simulator</div><h1 class="title">Virtual anaerobic digester</h1><p class="subtitle">Change operating conditions and feed characteristics, run a scenario, and inspect estimated gas production, reactor sizing and stability flags. This is a transparent screening calculation, not a calibrated ADM1 model or a validated prediction.</p><div class="card" style="margin-top:22px"><h3 class="section-title">Operating conditions</h3><div class="form-grid"><div class="field"><label>Temperature <b id="tempVal">37 °C</b></label><input class="range" id="temp" type="range" min="25" max="55" value="37"></div><div class="field"><label>pH <b id="phVal">7.1</b></label><input class="range" id="ph" type="range" min="5.5" max="8.5" step="0.1" value="7.1"></div><div class="field"><label>Hydraulic retention time <b id="hrtVal">25 d</b></label><input class="range" id="hrt" type="range" min="10" max="45" value="25"></div><div class="field"><label>Target OLR <b id="olrVal">3.0 kg VS/m³·d</b></label><input class="range" id="olr" type="range" min="0.5" max="7" step="0.1" value="3"></div><div class="field"><label>Mixing speed <b id="mixingVal">40 rpm</b></label><input class="range" id="mixing" type="range" min="0" max="100" step="5" value="40"></div><div class="field"><label>Inoculum / feed ratio <b id="inoculumVal">10%</b></label><input class="range" id="inoculum" type="range" min="0" max="30" value="10"></div></div><h3 class="section-title" style="margin-top:24px">Feedstock characterization</h3><div class="form-grid"><div class="field"><label>Wet feed rate <b id="feedRateVal">600 kg/d</b></label><input class="range" id="feedRate" type="range" min="50" max="1500" step="25" value="600"></div><div class="field"><label>Total solids <b id="tsVal">25%</b></label><input class="range" id="ts" type="range" min="5" max="45" value="25"></div><div class="field"><label>VS / TS <b id="vsratioVal">90%</b></label><input class="range" id="vsratio" type="range" min="50" max="98" value="90"></div><div class="field"><label>Feedstock C/N ratio <b id="cnVal">24</b></label><input class="range" id="cn" type="range" min="8" max="45" value="24"></div><div class="field"><label>Alkalinity <b id="alkalinityVal">2500 mg/L</b></label><input class="range" id="alkalinity" type="range" min="500" max="6000" step="100" value="2500"></div><div class="field"><label>Free-ammonia screening input <b id="ammoniaVal">100 mg/L</b></label><input class="range" id="ammonia" type="range" min="0" max="1500" step="25" value="100"></div></div><div class="actions"><button class="btn primary" id="runSim">Run simulation</button><button class="btn" id="optimalBtn">Load reference conditions</button><button class="btn" id="exportSim">Export results CSV</button></div></div><div class="grid kpis"><div class="card"><div class="kpi-label">Estimated biogas</div><div class="kpi-value" id="simGas">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Estimated methane</div><div class="kpi-value" id="simCH4">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Methane fraction</div><div class="kpi-value" id="simFrac">—</div><div class="kpi-note" id="simFracNote">Screening estimate</div></div><div class="card"><div class="kpi-label">Gross energy potential</div><div class="kpi-value" id="simEnergy">—</div><div class="kpi-note">kWh/day, before conversion losses</div></div></div><div class="grid two"><div class="card"><h3 class="section-title">Screening reactor and loading calculations</h3><p class="small">These values come from the separate screening calculator and its TS/VS assumptions. They are not PyADM1ODE state outputs. The mechanistic model uses its own proxy-substrate properties and the assumptions shown in the model panel.</p><table class="table"><tbody><tr><td>Volatile solids feed</td><td><b id="simVS">—</b></td></tr><tr><td>Working volume from HRT</td><td><b id="simVolume">—</b></td></tr><tr><td>OLR implied by feed and HRT</td><td><b id="simImpliedOLR">—</b></td></tr><tr><td>Target OLR setting</td><td><b id="simTargetOLR">—</b></td></tr><tr><td>Estimated methane yield</td><td><b id="simYield">—</b></td></tr><tr><td>Net energy screening estimate</td><td><b id="simNetEnergy">—</b></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Process stability checks</h3><div class="metric"><div class="metric-top"><span>Screening score</span><b id="simScore">—</b></div><div class="meter"><span id="simScoreMeter" style="width:0%"></span></div></div><div id="simAlerts" class="recommend">Run the simulator to view parameter checks.</div><p class="footnote">The score is a heuristic indicator, not a biological stability measurement. Alkalinity and ammonia limits depend on the actual substrate, temperature, pH and analytical method.</p></div></div><div class="card section-gap"><h3 class="section-title">Parameter sensitivity view</h3><p class="small">Relative factor values used by this screening equation. These are not measured rates or an ADM1 state profile.</p><div id="sensitivityBars" style="display:grid;gap:12px;margin-top:16px"></div><div class="recommend" style="margin-top:18px" id="simNote">Adjust the controls and run the simulation to compare the effect of operating conditions.</div></div></section>
+<section class="page" id="digester"><div class="eyebrow">02 · Interactive process simulator</div><h1 class="title">Virtual anaerobic digester</h1><p class="subtitle">Change operating conditions and feed characteristics, run a scenario, and inspect estimated gas production, reactor sizing and stability flags. This is a transparent screening calculation, not a calibrated ADM1 model or a validated prediction.</p><div class="card" style="margin-top:22px"><h3 class="section-title">Operating conditions</h3><div class="form-grid"><div class="field"><label>Temperature <b id="tempVal">37 °C</b></label><input class="range" id="temp" type="range" min="25" max="55" value="37"></div><div class="field"><label>pH <b id="phVal">7.1</b></label><input class="range" id="ph" type="range" min="5.5" max="8.5" step="0.1" value="7.1"></div><div class="field"><label>Hydraulic retention time <b id="hrtVal">25 d</b></label><input class="range" id="hrt" type="range" min="10" max="45" value="25"></div><div class="field"><label>Target OLR <b id="olrVal">3.0 kg VS/m³·d</b></label><input class="range" id="olr" type="range" min="0.5" max="7" step="0.1" value="3"></div><div class="field"><label>Mixing speed <b id="mixingVal">40 rpm</b></label><input class="range" id="mixing" type="range" min="0" max="100" step="5" value="40"></div><div class="field"><label>Inoculum / feed ratio <b id="inoculumVal">10%</b></label><input class="range" id="inoculum" type="range" min="0" max="30" value="10"></div></div><h3 class="section-title" style="margin-top:24px">Feedstock characterization</h3><div class="form-grid"><div class="field"><label>Wet feed rate <b id="feedRateVal">600 kg/d</b></label><input class="range" id="feedRate" type="range" min="50" max="1500" step="25" value="600"></div><div class="field"><label>Total solids <b id="tsVal">25%</b></label><input class="range" id="ts" type="range" min="5" max="45" value="25"></div><div class="field"><label>VS / TS <b id="vsratioVal">90%</b></label><input class="range" id="vsratio" type="range" min="50" max="98" value="90"></div><div class="field"><label>Feedstock C/N ratio <b id="cnVal">24</b></label><input class="range" id="cn" type="range" min="8" max="45" value="24"></div><div class="field"><label>Alkalinity <b id="alkalinityVal">2500 mg/L</b></label><input class="range" id="alkalinity" type="range" min="500" max="6000" step="100" value="2500"></div><div class="field"><label>Free-ammonia screening input <b id="ammoniaVal">100 mg/L</b></label><input class="range" id="ammonia" type="range" min="0" max="1500" step="25" value="100"></div></div><div class="actions"><button class="btn primary" id="runSim">Run simulation</button><button class="btn" id="optimalBtn">Load reference conditions</button><button class="btn" id="exportSim">Export results CSV</button></div></div><div class="grid kpis"><div class="card"><div class="kpi-label">Estimated biogas</div><div class="kpi-value" id="simGas">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Estimated methane</div><div class="kpi-value" id="simCH4">—</div><div class="kpi-note">m³/day</div></div><div class="card"><div class="kpi-label">Methane fraction</div><div class="kpi-value" id="simFrac">—</div><div class="kpi-note" id="simFracNote">Screening estimate</div></div><div class="card"><div class="kpi-label">Gross energy potential</div><div class="kpi-value" id="simEnergy">—</div><div class="kpi-note">kWh/day, before conversion losses</div></div></div>
+<div class="card section-gap" id="gompertzCurvePanel"><div class="eyebrow">Cumulative gas profile · Gompertz form</div><h3 class="section-title">Cumulative biogas accumulation over HRT</h3><p class="small">The horizontal axis follows the current HRT slider. This is an assumption-based modified Gompertz curve scaled from the screening biogas rate; it is <b>not fitted</b> to measured time-series gas data because no suitable batch accumulation series has been provided.</p><div class="grid three"><div class="card"><div class="kpi-label">HRT horizon</div><div class="kpi-value" id="gompertzHrt">—</div><div class="kpi-note">days</div></div><div class="card"><div class="kpi-label">Assumed Pmax</div><div class="kpi-value" id="gompertzPmax">—</div><div class="kpi-note">cumulative m³ over displayed horizon</div></div><div class="card"><div class="kpi-label">Assumed maximum rate</div><div class="kpi-value" id="gompertzRmax">—</div><div class="kpi-note">m³/day · illustrative parameter</div></div></div><div class="gompertz-chart-wrap"><svg id="gompertzChart" viewBox="0 0 860 360" role="img" aria-label="Illustrative cumulative biogas accumulation curve over hydraulic retention time"></svg></div><p id="gompertzAssumptions" class="footnote">Move the HRT slider to update the displayed horizon. Gompertz parameters are assumed, not estimated from measured gas observations.</p></div>
+<div class="grid two"><div class="card"><h3 class="section-title">Screening reactor and loading calculations</h3><p class="small">These values come from the separate screening calculator and its TS/VS assumptions. They are not PyADM1ODE state outputs. The mechanistic model uses its own proxy-substrate properties and the assumptions shown in the model panel.</p><table class="table"><tbody><tr><td>Volatile solids feed</td><td><b id="simVS">—</b></td></tr><tr><td>Working volume from HRT</td><td><b id="simVolume">—</b></td></tr><tr><td>OLR implied by feed and HRT</td><td><b id="simImpliedOLR">—</b></td></tr><tr><td>Target OLR setting</td><td><b id="simTargetOLR">—</b></td></tr><tr><td>Estimated methane yield</td><td><b id="simYield">—</b></td></tr><tr><td>Net energy screening estimate</td><td><b id="simNetEnergy">—</b></td></tr></tbody></table></div><div class="card"><h3 class="section-title">Process stability checks</h3><div class="metric"><div class="metric-top"><span>Screening score</span><b id="simScore">—</b></div><div class="meter"><span id="simScoreMeter" style="width:0%"></span></div></div><div id="simAlerts" class="recommend">Run the simulator to view parameter checks.</div><p class="footnote">The score is a heuristic indicator, not a biological stability measurement. Alkalinity and ammonia limits depend on the actual substrate, temperature, pH and analytical method.</p></div></div><div class="card section-gap"><h3 class="section-title">Parameter sensitivity view</h3><p class="small">Relative factor values used by this screening equation. These are not measured rates or an ADM1 state profile.</p><div id="sensitivityBars" style="display:grid;gap:12px;margin-top:16px"></div><div class="recommend" style="margin-top:18px" id="simNote">Adjust the controls and run the simulation to compare the effect of operating conditions.</div></div></section>
 <section class="page" id="prediction"><div class="eyebrow">03 · Phase 4 · Data-driven prediction</div><h1 class="title">Prediction</h1><p class="subtitle">Start with the STP exploratory analysis from your uploaded workbook below. It can test STP pH patterns only. The separate campus biogas prediction model remains untrained until matched campus feedstock characterization and measured digestion outcomes are available; STP wastewater records and simulated outputs are not valid training labels for it.</p>
 <div class="card section-gap" id="p4StpExploratory"><div class="eyebrow">Phase 4 · Public reference + uploaded STP workbook</div><h2 class="section-title" style="font-size:22px">Combine public water-quality data with your STP records</h2><p class="small">This tool loads an external India water-quality reference CSV, then uses its station-level minimum/maximum summaries to fit and test an exploratory pH model. Your uploaded STP readings are kept as a separate source and only used for a cross-source comparison. The model does <b>not</b> predict digester methane or prove STP performance.</p><p class="small">Reference data: <a href="https://github.com/KunalLatkar/RiverWaterQualityDataset" target="_blank" rel="noopener noreferrer">India River Water Quality dataset repository</a> (curated from CPCB monitoring records, 2012–2023) · <a href="https://cpcb.nic.in/nwmp-data-2023/" target="_blank" rel="noopener noreferrer">CPCB NWMP source portal</a>. The external file contains station/year Min and Max summaries, not individual readings; this is a reference model only.</p><div class="grid four section-gap"><div class="card"><div class="kpi-label">Your STP tank records</div><div class="kpi-value" id="p4StpTankN">27</div><div class="kpi-note">Uploaded workbook</div></div><div class="card"><div class="kpi-label">STP flow / gas rows</div><div class="kpi-value" id="p4StpFlowN">12</div><div class="kpi-note">Units and interval need review</div></div><div class="card"><div class="kpi-label">Public rows usable</div><div class="kpi-value" id="p4StpDatasetN">Not loaded</div><div class="kpi-note">Complete pH / conductivity / DO / temperature summary pairs</div></div><div class="card"><div class="kpi-label">STP rows comparable</div><div class="kpi-value" id="p4StpCompleteN">—</div><div class="kpi-note">pH + conductivity + DO + temperature</div></div></div><div class="actions"><button type="button" class="btn primary" id="p4RunStpDemo">Load internet dataset + run pH analysis</button><button type="button" class="btn" id="p4ExportStpDemo" disabled>Export combined CSV</button><span id="p4StpStatus" class="small" role="status" aria-live="polite">Ready to load the public reference CSV and combine it with your separately labelled STP records. Internet access is required.</span></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Held-out reference stations</div><div class="kpi-value" id="p4StpHoldoutDate">—</div><div class="kpi-note">Whole stations withheld from model fitting</div></div><div class="card"><div class="kpi-label">Public holdout pH MAE</div><div class="kpi-value" id="p4StpMAE">—</div><div class="kpi-note">pH units · source summary test set</div></div><div class="card"><div class="kpi-label">Public pH RMSE / R²</div><div class="kpi-value" id="p4StpRMSE">—</div><div class="kpi-note" id="p4StpR2">Run analysis to evaluate</div></div></div><div class="card section-gap"><h3 class="section-title">A. Public reference dataset — held-out station results</h3><p class="small">The model predicts pH minima/maxima from corresponding conductivity, dissolved oxygen and temperature minima/maxima. It uses only rows complete for all four variables; missing values are not filled by this tool. Train/test separation is by station identifier to reduce leakage.</p><div style="overflow-x:auto;max-height:360px;overflow-y:auto"><table class="table p4-stp-table"><thead><tr><th>Station / location</th><th>State</th><th>Year</th><th>Range statistic</th><th>Source pH</th><th>Estimated pH</th><th>Absolute difference</th></tr></thead><tbody id="p4PublicTestRows"><tr><td colspan="7" class="small">Load the public reference CSV to generate held-out results.</td></tr></tbody></table></div></div><div class="card section-gap"><h3 class="section-title">B. Your uploaded STP records — cross-source comparison</h3><p class="small">This applies the public reference model to your STP readings when conductivity, DO and temperature are present. The difference from your transcribed pH is a <b>cross-source discrepancy</b>, not a valid STP validation error, because the reference data are different water bodies and annual range summaries.</p><div style="overflow-x:auto;max-height:360px;overflow-y:auto"><table class="table p4-stp-table"><thead><tr><th>Date</th><th>Sampling point</th><th>Transcribed pH</th><th>Reference-model estimate</th><th>Absolute discrepancy</th><th>Confidence</th><th>Source note</th></tr></thead><tbody id="p4StpResultsRows"><tr><td colspan="7" class="small">Load the source data and run the combined analysis.</td></tr></tbody></table></div></div><div class="card section-gap"><h3 class="section-title">C. Flow / gas records from your workbook — kept separate</h3><p class="small">The 12 flow/gas rows are preserved for review but excluded from pH model fitting. Do not convert them into m³/day or methane yield until the units and measurement intervals are confirmed.</p><div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table class="table p4-stp-table"><thead><tr><th>Date</th><th>Parameter / route</th><th>Reading I</th><th>Reading II</th><th>Reading III</th><th>Total as written</th><th>Unit / period</th><th>Confidence</th><th>Notes</th></tr></thead><tbody id="p4StpFlowRows"><tr><td colspan="9" class="small">Source data not loaded yet.</td></tr></tbody></table></div></div><div class="recommend"><b>Scientific boundary:</b> the model is trained and tested on public surface-water station/year summaries, then applied to STP records only to explore transfer between data sources. It is not a validated STP pH model and it is not a campus anaerobic digester biogas/methane predictor. Source values in your workbook remain preliminary transcriptions and should be checked against the original notebook.</div></div>
 <div class="grid three" style="margin-top:22px"><div class="card"><div class="kpi-label">Training records</div><div class="kpi-value" id="p4TrainRows">0</div><div class="kpi-note">Matched sample / run pairs</div></div><div class="card"><div class="kpi-label">Baseline model</div><div class="kpi-value" id="p4ModelStatus">Not trained</div><div class="kpi-note">Ridge regression · local browser</div></div><div class="card"><div class="kpi-label">Held-out records</div><div class="kpi-value" id="p4TestRows">0</div><div class="kpi-note">Grouped by sample ID</div></div></div>
@@ -226,6 +267,7 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <p class="footnote">This page is a QA aid, not certification, a safety review, or proof of scientific validity. Keep raw sources and original observations for auditability.</p></section>
 <section class="page" id="terms"><div class="eyebrow">Site information</div><h1 class="title">Terms & conditions</h1><p class="subtitle">Conditions for using this academic prototype.</p><div class="card section-gap"><h3 class="section-title">1. Purpose</h3><p>This website is an educational and research prototype for exploring anaerobic digestion of campus organic waste. It is not a certified engineering design, operational plant controller or commercial guarantee.</p><h3 class="section-title">2. Data and estimates</h3><p>Unless a value is explicitly identified as measured or supported by a cited source, treat it as an illustrative simulation input or output. Results depend on assumptions and should not be presented as experimental findings.</p><h3 class="section-title">3. No operational reliance</h3><p>Do not use the calculations alone to design, construct, operate or make safety decisions for a physical digester. Obtain qualified engineering review and validate process parameters experimentally before implementation.</p><h3 class="section-title">4. Research use and attribution</h3><p>Users are responsible for checking source material, citing published data, and distinguishing their own measurements from literature values. Do not submit simulated results as measured observations.</p><h3 class="section-title">5. Availability and accuracy</h3><p>The prototype is provided for demonstration and may contain errors or incomplete features. No warranty is made that outputs are complete, accurate or suitable for a particular purpose.</p><h3 class="section-title">6. Changes</h3><p>These terms may be updated as the project develops. The page should be reviewed before public deployment and adapted to the institution's requirements.</p><p class="footnote">Last updated: 12 October 2026. This draft is general project information, not legal advice.</p></div></section>
 </main></div></div>
+<div id="feasibilityPrintReport" aria-hidden="true"></div>
 <span id="simDigestate" hidden></span>
 <footer style="border-top:1px solid var(--line);padding:16px 28px;background:var(--panel);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span>BIT Anaerobic Biorefinery · Virtual process study</span><span><a href="#terms" id="termsLink" style="color:var(--accent);text-decoration:underline">Terms & conditions</a></span></footer>
 <script>
@@ -1673,6 +1715,7 @@ sim();
   'bitPhase4BaselineModels_v1',
   'bitLatestAdm1Run_v1',
   'bitPhase5QAChecklist_v1',
+  'bitScenarioState_v1',
   'bitBackupLastExportAt_v1'
  ];
  const FORMAT='BIT_ANAEROBIC_LOCAL_BACKUP_V1';
@@ -1682,10 +1725,31 @@ sim();
   let when='';try{when=localStorage.getItem('bitBackupLastExportAt_v1')||''}catch(e){}
   $('backupLastStatus').textContent=when?'Last full backup requested: '+new Date(when).toLocaleString()+'. Keep the downloaded file somewhere outside this browser.':'Full local backup: not recorded in this browser.';
  }
+ function allProjectKeys(){
+  const keys=new Set(PROJECT_KEYS);
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&/^bit[A-Za-z0-9_]*$/.test(key))keys.add(key)}}catch(e){}
+  keys.delete('bitBackupLastExportAt_v1');
+  return [...keys];
+ }
+ function readScenarioInputs(){
+  const ids=['scenarioFood','scenarioTemp','scenarioOlr'];
+  const result={};
+  ids.forEach(id=>{const el=$(id);if(el)result[id]=el.value});
+  return result;
+ }
  function buildBackup(){
   const values={};
-  PROJECT_KEYS.forEach(key=>{if(key==='bitBackupLastExportAt_v1')return;try{const value=localStorage.getItem(key);if(value!==null)values[key]=value}catch(e){}});
-  return {format:FORMAT,createdAt:new Date().toISOString(),project:'BIT Smart Campus Anaerobic Biorefinery',note:'Local browser backup. This file is not encrypted and has not been uploaded to a server. Keep it private. It can be restored on this website.',dataKeys:values};
+  allProjectKeys().forEach(key=>{try{const value=localStorage.getItem(key);if(value!==null)values[key]=value}catch(e){}});
+  const scenarioInputs=readScenarioInputs();
+  if(Object.keys(scenarioInputs).length)values['bitScenarioState_v1']=JSON.stringify(scenarioInputs);
+  return {
+   format:FORMAT,
+   createdAt:new Date().toISOString(),
+   project:'BIT Smart Campus Anaerobic Biorefinery',
+   note:'Local browser backup. Includes available bit-prefixed browser records and current what-if controls. The file is not encrypted or uploaded to a server; store it privately.',
+   workspaceState:{scenarioInputs},
+   dataKeys:values
+  };
  }
  function downloadText(filename,text,mime){
   const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -1704,11 +1768,11 @@ sim();
   try{
    const backup=JSON.parse(await file.text());
    if(!backup||backup.format!==FORMAT||!backup.dataKeys||typeof backup.dataKeys!=='object'||Array.isArray(backup.dataKeys))throw new Error('This is not a valid BIT Anaerobic Biorefinery local backup file.');
-   const entries=Object.entries(backup.dataKeys).filter(([key])=>PROJECT_KEYS.includes(key)&&key!=='bitBackupLastExportAt_v1');
+   const entries=Object.entries(backup.dataKeys).filter(([key])=>/^bit[A-Za-z0-9_]*$/.test(key)&&key!=='bitBackupLastExportAt_v1');
    if(!entries.length)throw new Error('No recognized project data keys were found in this backup.');
    entries.forEach(([key,value])=>{if(typeof value!=='string')throw new Error('Backup key '+key+' is not stored as a valid string.');JSON.parse(value)});
    if(!window.confirm('Restore '+entries.length+' local project data section(s) from '+file.name+'? This replaces saved values for all tracked sections. Export a fresh backup first if needed.'))return;
-   PROJECT_KEYS.forEach(key=>{if(key!=='bitBackupLastExportAt_v1')localStorage.removeItem(key)});
+   for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if((key&&/^bit[A-Za-z0-9_]*$/.test(key))||PROJECT_KEYS.includes(key))localStorage.removeItem(key)}
    entries.forEach(([key,value])=>localStorage.setItem(key,value));
    localStorage.setItem('bitBackupLastExportAt_v1',new Date().toISOString());
    setStatus('Backup restored. Reloading the page so the saved records and model state refresh.');
@@ -1726,6 +1790,184 @@ sim();
   wrapper.parentNode.insertBefore(hint,wrapper);
  });
  lastBackupStatus();
+})();
+</script>
+<script>
+/* Scenario profile persistence, illustrative modified Gompertz curve, and print-ready feasibility report. */
+(function(){
+ const $=id=>document.getElementById(id);
+ const SCENARIO_KEY='bitScenarioState_v1';
+ const fmt=(v,d=2)=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):'—';
+ const n=id=>{const el=$(id);if(!el)return null;const v=Number(el.value);return Number.isFinite(v)?v:null};
+ const text=id=>{const el=$(id);return el?String(el.textContent||'').trim():'—'};
+ const escapeHTML=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+ // Persist both the full What-if page and dashboard slider settings locally.
+ function saveScenarioState(){
+  const state={};
+  ['scenarioFood','scenarioTemp','scenarioOlr'].forEach(id=>{const el=$(id);if(el)state[id]=el.value});
+  try{localStorage.setItem(SCENARIO_KEY,JSON.stringify(state))}catch(e){}
+ }
+ function restoreScenarioState(){
+  try{
+   const state=JSON.parse(localStorage.getItem(SCENARIO_KEY)||'null');
+   if(!state)return;
+   Object.entries(state).forEach(([id,value])=>{const el=$(id);if(el&&Number.isFinite(Number(value)))el.value=String(value)});
+   ['scenarioFood','scenarioTemp','scenarioOlr'].forEach(id=>{const el=$(id);if(el)el.dispatchEvent(new Event('input',{bubbles:true}))});
+  }catch(e){}
+ }
+ restoreScenarioState();
+ ['scenarioFood','scenarioTemp','scenarioOlr','homeScenarioFood','homeScenarioTemp','homeScenarioOlr'].forEach(id=>{
+  const el=$(id);if(el){el.addEventListener('input',saveScenarioState);el.addEventListener('change',saveScenarioState)}
+ });
+
+ // Assumption-based modified Gompertz accumulation curve; not fitted to observations.
+ function updateGompertzCurve(){
+  const svg=$('gompertzChart');if(!svg)return;
+  const hrt=n('hrt')||25;
+  const gasMatch=text('simGas').match(/-?[0-9,]+(?:\.[0-9]+)?/);
+  const gasRate=gasMatch?Number(gasMatch[0].replace(/,/g,'')):null;
+  if(!(Number.isFinite(hrt)&&hrt>0&&Number.isFinite(gasRate)&&gasRate>=0)){
+   svg.innerHTML='<text x="30" y="45" class="gompertz-label">Run the screening calculator to display the curve.</text>';return;
+  }
+  const pMax=gasRate*hrt;
+  const rMax=1.8*pMax/hrt;
+  const lag=Math.max(0.25,0.1*hrt);
+  const cumulative=t=>{
+   if(pMax<=0)return 0;
+   const inner=(rMax*Math.E/pMax)*(lag-t)+1;
+   const expInner=Math.exp(Math.min(700,inner));
+   return pMax*Math.exp(-expInner);
+  };
+  const W=860,H=360,left=82,right=28,top=34,bottom=65,plotW=W-left-right,plotH=H-top-bottom;
+  const x=t=>left+(t/hrt)*plotW, y=v=>top+plotH-(v/(pMax||1))*plotH;
+  const parts=[];
+  for(let i=0;i<=4;i++){
+   const value=pMax*i/4,yy=y(value);
+   parts.push('<line class="gompertz-grid" x1="'+left+'" y1="'+yy.toFixed(2)+'" x2="'+(W-right)+'" y2="'+yy.toFixed(2)+'"/>');
+   parts.push('<text class="gompertz-tick" x="'+(left-10)+'" y="'+(yy+4).toFixed(2)+'" text-anchor="end">'+fmt(value,1)+'</text>');
+  }
+  for(let i=0;i<=4;i++){
+   const day=hrt*i/4,xx=x(day);
+   parts.push('<line class="gompertz-grid" x1="'+xx.toFixed(2)+'" y1="'+top+'" x2="'+xx.toFixed(2)+'" y2="'+(top+plotH)+'"/>');
+   parts.push('<text class="gompertz-tick" x="'+xx.toFixed(2)+'" y="'+(top+plotH+20)+'" text-anchor="middle">'+fmt(day,1)+'</text>');
+  }
+  parts.push('<line class="gompertz-axis" x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(top+plotH)+'"/>');
+  parts.push('<line class="gompertz-axis" x1="'+left+'" y1="'+(top+plotH)+'" x2="'+(W-right)+'" y2="'+(top+plotH)+'"/>');
+  const pointCount=121;
+  let path='';
+  for(let i=0;i<pointCount;i++){
+   const day=hrt*i/(pointCount-1),val=Math.max(0,Math.min(pMax,cumulative(day)));
+   path+=(i?' L ':'M ')+x(day).toFixed(2)+' '+y(val).toFixed(2);
+  }
+  const endY=y(Math.max(0,Math.min(pMax,cumulative(hrt))));
+  parts.push('<path class="gompertz-line" d="'+path+'"/>');
+  parts.push('<circle class="gompertz-endpoint" cx="'+x(hrt).toFixed(2)+'" cy="'+endY.toFixed(2)+'" r="5"/>');
+  parts.push('<text class="gompertz-label" x="'+(left+plotW/2)+'" y="'+(H-13)+'" text-anchor="middle">Time (days; displayed horizon = HRT)</text>');
+  parts.push('<text class="gompertz-label" x="20" y="'+(top+plotH/2)+'" text-anchor="middle" transform="rotate(-90 20 '+(top+plotH/2)+')">Cumulative biogas (m³)</text>');
+  svg.innerHTML=parts.join('');
+  $('gompertzHrt').textContent=fmt(hrt,1)+' days';
+  $('gompertzPmax').textContent=fmt(pMax,2)+' m³';
+  $('gompertzRmax').textContent=fmt(rMax,2)+' m³/day';
+  $('gompertzAssumptions').textContent='Calculated from current screening gas rate '+fmt(gasRate,2)+' m³/day and HRT '+fmt(hrt,1)+' days. Assumptions: Pmax = gas rate × HRT; Rmax = 1.8 × Pmax/HRT; lag λ = 10% of HRT (minimum 0.25 days). These parameters are illustrative, not fitted or calibrated. Replace them with a measured cumulative gas time series before reporting a Gompertz fit.';
+ }
+ ['temp','ph','hrt','olr','food','garden','feedRate','ts','vsratio','cn','inoculum','mixing','alkalinity','ammonia'].forEach(id=>{
+  const el=$(id);if(el)el.addEventListener('input',updateGompertzCurve);
+ });
+ const outputObserver=typeof MutationObserver!=='undefined'?new MutationObserver(updateGompertzCurve):null;
+ ['simGas','simCH4','simEnergy','simVolume','simImpliedOLR'].forEach(id=>{
+  const el=$(id);if(el&&outputObserver)outputObserver.observe(el,{childList:true,subtree:true,characterData:true});
+ });
+ $('runSim')?.addEventListener('click',updateGompertzCurve);
+ updateGompertzCurve();
+
+ function parseDisplayedNumber(value){
+  const m=String(value||'').match(/-?[0-9,]+(?:\.[0-9]+)?/);
+  return m?Number(m[0].replace(/,/g,'')):null;
+ }
+ function getStoredArray(key){
+  try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}
+ }
+ function getWasteRows(){
+  const table=$('wasteRows');if(!table)return [];
+  return [...table.querySelectorAll('tr')].map(tr=>{
+   const row={};tr.querySelectorAll('[data-waste-field]').forEach(input=>row[input.dataset.wasteField]=input.value);
+   return row;
+  }).filter(row=>row.source);
+ }
+ function reportBuild(){
+  const temperature=n('temp'),ph=n('ph'),hrt=n('hrt'),olr=n('olr'),feedRate=n('feedRate'),ts=n('ts'),vsRatio=n('vsratio'),cn=n('cn');
+  const gas=parseDisplayedNumber(text('simGas')),methane=parseDisplayedNumber(text('simCH4')),grossEnergy=parseDisplayedNumber(text('simEnergy')),netEnergy=parseDisplayedNumber(text('simNetEnergy')),workingVolume=parseDisplayedNumber(text('simVolume')),vsFeed=parseDisplayedNumber(text('simVS')),impliedOLR=parseDisplayedNumber(text('simImpliedOLR')),stability=parseDisplayedNumber(text('simScore'));
+  const wasteRows=getWasteRows(),feedTotal=wasteRows.reduce((sum,row)=>sum+(Number(row.quantity)||0),0),shares=wasteRows.reduce((sum,row)=>sum+(Number(row.share)||0),0);
+  const annualGross=Number.isFinite(grossEnergy)?grossEnergy*365:null;
+  const stpTank=getStoredArray('bitDataValidationStpTank_v1'),stpFlow=getStoredArray('bitDataValidationStpFlow_v1');
+  const p3Samples=getStoredArray('bitPhase3FeedstockSamples_v1'),p3Runs=getStoredArray('bitPhase3ValidationRuns_v1');
+  const stamp=new Date().toLocaleDateString();
+  const kpi=(label,value,sub='')=>'<div class="report-kpi"><span>'+escapeHTML(label)+'</span><strong>'+escapeHTML(value)+'</strong>'+(sub?'<small>'+escapeHTML(sub)+'</small>':'')+'</div>';
+  const table=(headers,rows)=>'<table><thead><tr>'+headers.map(x=>'<th>'+escapeHTML(x)+'</th>').join('')+'</tr></thead><tbody>'+(rows.length?rows.map(row=>'<tr>'+row.map(x=>'<td>'+escapeHTML(x===null||x===undefined?'—':x)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+headers.length+'">No records are currently saved in the local workspace.</td></tr>')+'</tbody></table>';
+  const settings=[
+   ['Wet feed rate',fmt(feedRate,2)+' kg/day'],
+   ['Total solids setting',fmt(ts,2)+'%'],
+   ['VS/TS setting',fmt(vsRatio,2)+'%'],
+   ['Calculated volatile solids feed',text('simVS')],
+   ['Hydraulic retention time',fmt(hrt,2)+' days'],
+   ['Working volume from HRT',text('simVolume')],
+   ['Target OLR setting',fmt(olr,2)+' kg VS/m³·day'],
+   ['OLR implied by feed and HRT',text('simImpliedOLR')],
+   ['Feedstock C/N input',fmt(cn,2)],
+   ['Temperature input',fmt(temperature,1)+' °C'],
+   ['pH setting (screening input)',fmt(ph,2)],
+   ['Screening score',text('simScore')]
+  ];
+  const outputRows=[
+   ['Estimated biogas rate',text('simGas')],
+   ['Estimated methane rate',text('simCH4')],
+   ['Methane fraction',text('simFrac')],
+   ['Gross energy potential',text('simEnergy')],
+   ['Net energy screening estimate',text('simNetEnergy')],
+   ['Annualized gross energy (simple 365-day arithmetic)',annualGross===null?'Not available':fmt(annualGross,0)+' kWh/year'],
+   ['Estimated digestate',text('simDigestate')]
+  ];
+  const wasteTableRows=wasteRows.map(r=>[r.source||'—',(r.share||'')+'%',(r.quantity||'')+' kg/day',(r.ts||'')+'%',(r.vsTs||'')+'%',r.cn||'—',r.status||'—']);
+  const assumptions=[
+   'All gas, stability, mass-balance and energy figures in this report are screening calculations unless explicitly labelled otherwise. The site does not yet have a verified campus feedstock characterization and measured digestion-output dataset.',
+   'Gross annual energy is a simple daily value × 365 arithmetic projection; it excludes uptime, conversion efficiency, parasitic loads, seasonal feed variation and downtime.',
+   'A screening score or assumed range is not proof of biological stability or an engineering-operating limit. Safe limits require literature/engineering review and experiments.',
+   'The separate PyADM1ODE integration uses reference substrate proxies and an assumed bulk density. Its outputs are model-derived and not validated against BIT feedstock.',
+   'The public pH model uses India surface-water station/year minimum/maximum summaries. Comparisons with STP records are cross-source exploratory differences, not STP validation metrics.',
+   'The STP workbook is a preliminary transcription. Verify flagged values, column alignment, flow/gas units and measurement intervals against original notebook pages and instruments.',
+   'STP wastewater records are not campus food/garden feedstock data or measured methane-yield labels; no campus-specific AI methane model is currently trained.'
+  ];
+  const root=$('feasibilityPrintReport');
+  root.innerHTML='<article class="report-page"><div class="report-meta">BANNARI AMMAN INSTITUTE OF TECHNOLOGY · SMART CAMPUS PROJECT</div><h1>Campus Anaerobic Biorefinery — Feasibility Screening Report</h1><p class="report-meta">Generated '+escapeHTML(stamp)+' · Current browser scenario snapshot · Prototype / pre-feasibility stage</p><div class="report-note"><b>Executive summary.</b> This report summarizes the current interactive screening scenario, feedstock-table inputs, reactor sizing calculations and indicative energy estimates. It is not an engineering design, independent feasibility certification, measured campus performance report or validated AI prediction.</div><div class="report-kpis">'+kpi('Wet feed setting',fmt(feedRate,1)+' kg/day','Current scenario input')+kpi('Estimated methane',text('simCH4'),'Screening estimate; not measured')+kpi('Gross energy',text('simEnergy'),'Before conversion losses')+'</div><h2>1. Scenario and preliminary mass balance</h2><p>Current simulator settings and outputs:</p>'+table(['Parameter','Current value'],settings)+'<h3>Editable feedstock composition table</h3><p>Table values are the current waste-profile inputs saved or being edited in this browser. Placeholder values must not be described as measured campus waste composition.</p>'+table(['Feedstock source','Share','Quantity','TS','VS/TS','C/N','Data status / source note'],wasteTableRows)+'<p><b>Cross-checks:</b> table quantity total = '+fmt(feedTotal,2)+' kg/day; mix-share total = '+fmt(shares,2)+'%. The main simulator wet feed setting is '+fmt(feedRate,2)+' kg/day; these two totals may differ until the waste profile is reconciled with the simulator inputs.</p><h2>2. Gas and energy screening</h2>'+table(['Indicator','Current value'],outputRows)+'<div class="report-note"><b>Energy interpretation:</b> gross potential is before conversion losses. Annualized energy is a simple 365-day arithmetic projection, not guaranteed electricity generation or a verified grid offset. Net energy, where available, remains a screening value.</div><h2>3. Candidate operating point and limits</h2>'+table(['Setting / indicator','Current value','Interpretation'],[
+   ['Temperature',fmt(temperature,1)+' °C','User-selected scenario input'],
+   ['pH',fmt(ph,2),'Screening input; not a measured process pH'],
+   ['HRT',fmt(hrt,1)+' days','Scenario slider value'],
+   ['Target OLR',fmt(olr,2)+' kg VS/m³·day','Scenario setting; compare with implied OLR'],
+   ['Working volume',text('simVolume'),'Calculated from feed/HRT assumptions'],
+   ['Implied OLR',text('simImpliedOLR'),'Screening calculation'],
+   ['Heuristic score',text('simScore'),'Not a biological stability measurement']
+  ])+'<p>'+escapeHTML(text('simNote'))+'</p><h2>4. Research data status</h2>'+table(['Local data section','Saved rows','What it represents'],[
+   ['STP tank readings',String(stpTank.length),'STP operational measurements/transcriptions'],
+   ['STP flow / gas records',String(stpFlow.length),'Units and intervals may require confirmation'],
+   ['Campus feedstock characterization',String(p3Samples.length),'Measured campus samples if genuinely entered'],
+   ['Digestion validation runs',String(p3Runs.length),'Measured runs and optional paired model outputs']
+  ])+'<h2>5. Assumptions, risks and required next work</h2><ul>'+assumptions.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul><h2>6. Suggested validation plan</h2><ol><li>Verify the original STP notebook readings, column mapping, dates, units and meter intervals; retain the original file unchanged.</li><li>Collect representative campus food/garden waste quantities and laboratory characterization (moisture, TS, VS/TS, C/N, pH and substrate composition), with sampling dates and methods.</li><li>Record measured digester operating conditions and time-stamped gas volumes with a documented flow/gas measurement method and methane composition where available.</li><li>Calibrate the mechanistic model to suitable substrate properties; compare predictions against measured runs and report a held-out evaluation before describing campus-specific predictive validity.</li><li>Review reactor design, gas handling, digestate safety, permitting, energy conversion losses and institutional requirements with qualified supervisors/engineers before physical implementation.</li></ol><div class="report-footer">Project: Smart AI-Based Anaerobic Biorefinery for Organic Waste Valorization and Renewable Energy Generation in BIT Smart Campus. Generated automatically from this browser's current UI values and local record counts. Keep this report with the original source workbooks and the corresponding exported JSON/Excel backup. This document is a prototype feasibility screening summary, not a verified engineering or financial feasibility study.</div></article>';
+  root.setAttribute('aria-hidden','false');
+  return root;
+ }
+ $('generateFeasibilityReportBtn')?.addEventListener('click',()=>{
+  try{
+   reportBuild();
+   const oldTitle=document.title;
+   document.title='BIT_Campus_Anaerobic_Biorefinery_Feasibility_Report_'+new Date().toISOString().slice(0,10);
+   document.body.classList.add('printing-feasibility');
+   const cleanup=()=>{document.body.classList.remove('printing-feasibility');document.title=oldTitle;window.removeEventListener('afterprint',cleanup)};
+   window.addEventListener('afterprint',cleanup);
+   window.print();
+   setTimeout(cleanup,1500);
+  }catch(e){const status=$('backupActionStatus');if(status){status.textContent='Could not build the feasibility report: '+(e.message||'unexpected error');status.style.color='var(--danger)'}}
+ });
 })();
 </script>
 </body></html>
