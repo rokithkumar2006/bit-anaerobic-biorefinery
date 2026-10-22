@@ -1,6 +1,6 @@
 {
-  "sourceFile": "BIT_STP_data_sample(3).xlsx",
-  "sourceNote": "Preliminary transcription from notebook photographs; not a validated final dataset. Tank readings are STP wastewater/treatment-process observations. Gas-flow units and intervals require confirmation.",
+  "sourceFile": "BIT_STP_data_sample(4).xlsx",
+  "sourceNote": "Transcribed from the latest uploaded workbook BIT_STP_data_sample(4).xlsx. Preliminary notebook-photo transcription, not a validated final dataset. Tank readings are STP wastewater/treatment-process observations. Gas-flow units and intervals require confirmation. Blank values mean not clearly recorded, not zero.",
   "tankReadings": [
     {
       "recordId": "T-001",
