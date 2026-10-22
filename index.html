@@ -2046,52 +2046,70 @@ sim();
   if(Math.max(...points.map(p=>p.y))<=0)throw new Error('Cumulative methane yields must include at least one value above zero.');
   return points;
  }
- // Deterministic bounded multistart grid followed by coordinate search to minimize SSR.
- function fitGompertz(data){
-  const maxY=Math.max(...data.map(p=>p.y)),maxT=Math.max(...data.map(p=>p.t));
+ // Levenberg–Marquardt fit using ml-levenberg-marquardt v5.1.0.
+ // The current page is a static HTML site, so the ESM package is loaded on demand from esm.sh.
+ async function fitGompertz(data){
+  const maxY=Math.max(...data.map(p=>p.y));
+  const maxT=Math.max(...data.map(p=>p.t));
   const minT=Math.min(...data.map(p=>p.t));
-  const baseRate=maxY/Math.max(maxT-minT,1e-6);
-  const pFactors=[1.001,1.05,1.15,1.3,1.6,2,3,5];
-  const rFactors=[0.08,0.15,0.3,0.5,0.8,1.2,2,4,8];
-  const lFactors=[0,0.025,0.05,0.1,0.2,0.35,0.5,0.75,1];
-  let best=null;
-  for(const pf of pFactors)for(const rf of rFactors)for(const lf of lFactors){
-   const params=[Math.max(maxY*pf,1e-10),Math.max(baseRate*rf,1e-10),maxT*lf];
-   const ssr=computeSSR(data,params);
-   if(Number.isFinite(ssr)&&(!best||ssr<best.ssr))best={params,ssr};
+  if(!(maxY>0&&maxT>0))throw new Error('The data must contain positive cumulative methane and a positive time range.');
+  const duration=Math.max(maxT-minT,1e-6);
+  const baseRate=maxY/Math.max(maxT*0.5,1e-6);
+  const initialValues=[
+   Math.max(maxY*1.05,maxY+1e-8),
+   Math.max(baseRate,1e-8),
+   Math.min(1.5,maxT*0.4)
+  ];
+  let levenbergMarquardt;
+  try{
+   const module=await import('https://esm.sh/ml-levenberg-marquardt@5.1.0');
+   levenbergMarquardt=module.levenbergMarquardt||module.default;
+  }catch(e){
+   throw new Error('Could not load the Levenberg–Marquardt fitting library. Check the internet connection and try again. Details: '+(e&&e.message?e.message:'module import failed'));
   }
-  if(!best)throw new Error('Could not initialize a finite fit. Check the time/yield values and units.');
-  let params=best.params.slice(),score=best.ssr;
-  let steps=[Math.max(maxY*0.25,1e-8),Math.max(baseRate*0.35,1e-8),Math.max(maxT*0.2,1e-6)];
-  const bounds={pMin:Math.max(maxY*0.05,1e-10),pMax:Math.max(maxY*100,params[0]*2),rMin:Math.max(baseRate*1e-5,1e-10),rMax:Math.max(baseRate*100,params[1]*2),lMin:0,lMax:maxT*3};
-  for(let iteration=0;iteration<180;iteration++){
-   let improved=false;
-   for(let k=0;k<3;k++){
-    const candidates=[];
-    for(const direction of [-1,1]){
-     const candidate=params.slice();candidate[k]+=direction*steps[k];
-     candidate[0]=Math.max(bounds.pMin,Math.min(bounds.pMax,candidate[0]));
-     candidate[1]=Math.max(bounds.rMin,Math.min(bounds.rMax,candidate[1]));
-     candidate[2]=Math.max(bounds.lMin,Math.min(bounds.lMax,candidate[2]));
-     candidates.push(candidate);
-    }
-    for(const candidate of candidates){
-     const candidateScore=computeSSR(data,candidate);
-     if(Number.isFinite(candidateScore)&&candidateScore<score){
-      params=candidate;score=candidateScore;improved=true;
-     }
-    }
+  if(typeof levenbergMarquardt!=='function')throw new Error('The fitting library loaded, but its levenbergMarquardt function was not found.');
+  const parameterizedFunction=([P,Rm,lambda])=>t=>gompertz(t,P,Rm,lambda);
+  const result=levenbergMarquardt(
+   {x:data.map(p=>p.t),y:data.map(p=>p.y)},
+   parameterizedFunction,
+   {
+    damping:1.5,
+    initialValues,
+    minValues:[Math.max(maxY*1e-6,1e-10),Math.max(baseRate*1e-6,1e-10),0],
+    maxValues:[Math.max(maxY*100,initialValues[0]*2),Math.max(baseRate*100,initialValues[1]*2),maxT*3],
+    gradientDifference:[Math.max(maxY*1e-5,1e-7),Math.max(baseRate*1e-5,1e-8),Math.max(duration*1e-5,1e-7)],
+    maxIterations:200,
+    errorTolerance:1e-10,
+    timeout:10
    }
-   if(!improved)steps=steps.map(v=>v*0.6);
-   if(Math.max(steps[0]/maxY,steps[1]/baseRate,steps[2]/maxT)<1e-7)break;
+  );
+  const [P,Rm,lambda]=result.parameterValues;
+  if(![P,Rm,lambda].every(Number.isFinite)||P<=0||Rm<=0||lambda<0){
+   throw new Error('Levenberg–Marquardt returned invalid parameters. Check the units, observations and time-series shape.');
   }
-  if(!Number.isFinite(score))throw new Error('Fit search returned a non-finite residual.');
+  const ssr=computeSSR(data,[P,Rm,lambda]);
+  if(!Number.isFinite(ssr))throw new Error('The fitted curve produced a non-finite SSR.');
   const mean=data.reduce((a,p)=>a+p.y,0)/data.length;
   const ssTot=data.reduce((a,p)=>a+Math.pow(p.y-mean,2),0);
-  const r2=ssTot>1e-14?1-score/ssTot:null;
-  const rmse=Math.sqrt(score/data.length);
-  const mae=data.reduce((sum,p)=>sum+Math.abs(p.y-gompertz(p.t,...params)),0)/data.length;
-  return {P:params[0],Rm:params[1],lambda:params[2],ssr:score,rmse,mae,r2,n:data.length,unitsNote:'Same cumulative methane-yield unit as the input CSV',fittedAt:new Date().toISOString(),data};
+  const r2=ssTot>1e-14?1-ssr/ssTot:null;
+  const rmse=Math.sqrt(ssr/data.length);
+  const mae=data.reduce((sum,p)=>sum+Math.abs(p.y-gompertz(p.t,P,Rm,lambda)),0)/data.length;
+  const end=maxT*1.1,steps=100,dt=end/steps;
+  const fittedCurve=[];
+  for(let i=0;i<=steps;i++){
+   const t=i*dt;
+   fittedCurve.push({t,yield:gompertz(t,P,Rm,lambda)});
+  }
+  return {
+   P,Rm,lambda,ssr,rmse,mae,r2,n:data.length,
+   iterations:result.iterations??null,
+   parameterError:result.parameterError??ssr,
+   fittedCurve,
+   method:'Levenberg–Marquardt',
+   package:'ml-levenberg-marquardt@5.1.0',
+   unitsNote:'Same cumulative methane-yield unit as the input CSV',
+   fittedAt:new Date().toISOString(),data
+  };
  }
  function setStatus(msg,error=false){$('gompertzFitStatus').textContent=msg;$('gompertzFitStatus').style.color=error?'var(--danger)':'var(--muted)'}
  function drawFit(fit){
@@ -2130,21 +2148,26 @@ sim();
   $('gompertzFitSSR').textContent=fmt(fit.ssr,5);
   $('gompertzFitNotes').textContent='n = '+fit.n+' observed points · MAE '+fmt(fit.mae,4)+' · RMSE '+fmt(fit.rmse,4)+' · R² '+(fit.r2===null?'not defined (zero variance)':fmt(fit.r2,4))+'. Fit timestamp: '+fit.fittedAt+'. Parameters are descriptive of the uploaded time series only; no independent validation is implied.';
   drawFit(fit);
-  setStatus('Fit completed on '+fit.n+' measured time-series points. SSR = '+fmt(fit.ssr,5)+'. Review the curve and residual metrics; the fit is not independent validation.');
+  setStatus('Levenberg–Marquardt fit completed on '+fit.n+' measured time-series points. SSR = '+fmt(fit.ssr,5)+'. '+(fit.iterations===null?'':'Iterations: '+fit.iterations+'. ')+'This fit is not independent validation.');
  }
  $('gompertzCsvUpload').addEventListener('change',async e=>{
   const file=e.target.files&&e.target.files[0];if(!file)return;
   try{$('gompertzDataInput').value=await file.text();$('gompertzDataLabel').value=$('gompertzDataLabel').value||file.name;setStatus('CSV loaded. Check the columns and units, then select Fit Gompertz parameters.')}
   catch(err){setStatus('Could not read the selected CSV.',true)}
  });
- $('fitGompertzBtn').addEventListener('click',()=>{
+ $('fitGompertzBtn').addEventListener('click',async()=>{
+  const button=$('fitGompertzBtn');
+  button.disabled=true;
+  setStatus('Loading Levenberg–Marquardt and fitting the measured data…');
   try{
    const data=parseData($('gompertzDataInput').value);
-   const fit=fitGompertz(data);
+   const fit=await fitGompertz(data);
    fit.label=String($('gompertzDataLabel').value||'').trim();
    localStorage.setItem(STORE,JSON.stringify(fit));
    showFit(fit);
+   $('gompertzFitNotes').textContent='Method: '+fit.method+' ('+fit.package+'). n = '+fit.n+' measured points · iterations '+(fit.iterations===null?'not reported':fit.iterations)+' · MAE '+fmt(fit.mae,4)+' · RMSE '+fmt(fit.rmse,4)+' · R² '+(fit.r2===null?'not defined (zero variance)':fmt(fit.r2,4))+'. Fit timestamp: '+fit.fittedAt+'. Results describe this dataset only; no independent validation is implied.';
   }catch(err){setStatus(err&&err.message?err.message:'Could not fit the Gompertz curve.',true)}
+  finally{button.disabled=false}
  });
  $('clearGompertzFitBtn').addEventListener('click',()=>{
   try{localStorage.removeItem(STORE)}catch(e){}
