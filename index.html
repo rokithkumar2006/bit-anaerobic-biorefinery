@@ -132,6 +132,24 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 #quality .actions .btn{width:auto;text-align:center}
 @media(max-width:850px){.p5-test-list{grid-template-columns:1fr}}
 
+
+/* Usability follow-ups: local backup banner, dashboard sliders and mobile table handling */
+.backup-reminder{position:sticky;top:0;z-index:40;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;align-items:center;padding:12px 14px;margin:0 0 18px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel2)}
+.backup-reminder-copy{min-width:0}
+.backup-reminder-copy strong{font-size:14px}
+.backup-reminder-copy p{font-size:12px;color:var(--muted);line-height:1.5;margin:4px 0 0}
+.backup-reminder-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.backup-reminder-actions .btn{width:auto;white-space:normal;text-align:center}
+.backup-action-status{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+#dashboardQuickWhatIf .form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#dashboardQuickWhatIf .field{min-width:0}
+#dashboardQuickWhatIf .field input[type=range]{width:100%;max-width:100%}
+#dashboardQuickWhatIf .actions .btn{width:auto}
+.mobile-scroll-hint{display:none;color:var(--muted);font-size:11px;line-height:1.4;margin:6px 0 8px;padding:6px 8px;background:var(--panel2);border-left:2px solid var(--line)}
+.mobile-data-table-scroll{max-width:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin}
+@media(max-width:900px){.backup-reminder{grid-template-columns:1fr;top:0;padding:10px}.backup-reminder-actions{justify-content:flex-start}.backup-action-status{grid-column:auto}}
+@media(max-width:760px){.mobile-scroll-hint{display:block}.mobile-data-table-scroll table.table th:first-child,.mobile-data-table-scroll table.table td:first-child{position:sticky;left:0;background:var(--panel);box-shadow:1px 0 var(--line);z-index:2}.mobile-data-table-scroll table.table th:first-child{z-index:4}.mobile-data-table-scroll table.table td:first-child{max-width:128px;min-width:88px;white-space:normal;overflow-wrap:anywhere}.mobile-data-table-scroll table.table th:first-child{max-width:128px;min-width:88px}.mobile-data-table-scroll table.table{font-size:11px}.mobile-data-table-scroll table.table th,.mobile-data-table-scroll table.table td{padding:8px 7px}#dashboardQuickWhatIf .form-grid{grid-template-columns:1fr}.backup-reminder-actions .btn{font-size:11px;padding:8px 10px}}
+
 </style>
 </head>
 <body>
@@ -140,9 +158,15 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="layout">
 <aside><div class="nav-section">Workspace</div><nav id="nav"><button class="active" data-page="overview">Overview</button><button data-page="waste">Waste profile</button><button data-page="data">Data & validation</button><button data-page="stpdata">STP operational records</button><button data-page="workflow">Data collection plan</button><button data-page="opensource">Open-source simulations</button><button data-page="digester">Virtual digester</button><button data-page="prediction">Prediction</button><button data-page="optimization">Optimization</button><button data-page="scenarios">What-if study</button><button data-page="circular">Circular outputs</button><button data-page="quality">Testing & report</button></nav><div class="nav-section">Notes</div><div style="padding:0 12px;color:var(--muted);font-size:10px;line-height:1.6">No physical sensors are required in this prototype. Process values are simulated or model-derived.</div><div class="nav-section">Site information</div><nav><button data-page="terms">Terms & conditions</button></nav></aside>
 <main>
+<div class="backup-reminder" id="backupReminder" role="region" aria-label="Browser data backup reminder">
+ <div class="backup-reminder-copy"><strong>Protect your project data</strong><p>Records saved by this site live in this browser and do not sync across devices. Download a backup before clearing browser data or switching devices. Save pending edits before backing up.</p><p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p></div>
+ <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div>
+ <p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
+</div>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
 <section class="page active" id="overview"><div class="eyebrow">Project workspace</div><h1 class="title">Campus organic waste, treated as a process problem.</h1><p class="subtitle">A practical simulation environment for testing feedstock mixes, digestion conditions and resource recovery before a physical system is built.</p>
 <div class="grid kpis"><div class="card"><div class="kpi-label">Daily organic waste</div><div class="kpi-value" id="kpiWaste">600 kg</div><div class="kpi-note">Working scenario</div></div><div class="card"><div class="kpi-label">Predicted methane</div><div class="kpi-value" id="kpiMethane">124 m³/d</div><div class="kpi-note">Model estimate</div></div><div class="card"><div class="kpi-label">Energy potential</div><div class="kpi-value" id="kpiEnergy">1,230 kWh/d</div><div class="kpi-note">Before conversion losses</div></div><div class="card"><div class="kpi-label">Process score</div><div class="kpi-value" id="kpiScore">86 / 100</div><div class="kpi-note">Stable operating window</div></div></div>
+<div class="card section-gap" id="dashboardQuickWhatIf"><div class="eyebrow">Quick scenario controls</div><h2 class="section-title" style="font-size:20px">Try a what-if change from the dashboard</h2><p class="small">Move a slider to update the same scenario shown on the What-if study page. These are illustrative screening estimates, not results from the trained campus AI model or experimentally validated digester performance.</p><div class="form-grid"><div class="field"><label for="homeScenarioFood">Food-waste change <b id="homeScenarioFoodVal">+20%</b></label><input class="range" id="homeScenarioFood" type="range" min="-30" max="50" value="20" step="1"></div><div class="field"><label for="homeScenarioTemp">Temperature change <b id="homeScenarioTempVal">0°C</b></label><input class="range" id="homeScenarioTemp" type="range" min="-8" max="8" value="0" step="1"></div><div class="field"><label for="homeScenarioOlr">OLR change <b id="homeScenarioOlrVal">+0.0</b></label><input class="range" id="homeScenarioOlr" type="range" min="-1" max="2" value="0" step="0.1"></div></div><div class="grid three section-gap"><div class="card"><div class="kpi-label">Scenario methane</div><div class="kpi-value" id="homeScenarioCH4">134 m³/d</div><div class="kpi-note">Heuristic screening estimate</div></div><div class="card"><div class="kpi-label">Scenario gross energy</div><div class="kpi-value" id="homeScenarioEnergy">1,332 kWh/d</div><div class="kpi-note">Before conversion losses</div></div><div class="card"><div class="kpi-label">Interpretation</div><p class="small" id="homeScenarioNote">Change one input at a time to compare illustrative scenarios.</p></div></div><div class="actions"><button type="button" class="btn" id="openFullScenarioBtn">Open full What-if study</button></div></div>
 <div class="grid two"><div class="card"><h3 class="section-title">Projected gas output</h3><div class="chart" id="gasChart"></div><div class="xlabels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="legend"><span><i class="dot"></i>Methane</span><span><i class="dot s"></i>Other biogas</span></div></div><div class="card"><h3 class="section-title">Current process assessment</h3><div class="health"><div class="score" style="--score:86%"><strong>86</strong></div><div><div class="metric"><div class="metric-top"><span>pH</span><b>7.1</b></div><div class="meter"><span style="width:90%"></span></div></div><div class="metric"><div class="metric-top"><span>Temperature</span><b>37°C</b></div><div class="meter"><span style="width:92%"></span></div></div><div class="metric"><div class="metric-top"><span>OLR</span><b>3.0 kg VS/m³·d</b></div><div class="meter"><span style="width:78%"></span></div></div><div class="metric"><div class="metric-top"><span>C/N</span><b>24</b></div><div class="meter"><span style="width:82%"></span></div></div></div></div><div class="recommend" style="margin-top:16px"><b>Current note:</b> Operating conditions are inside the working range. Use the scenario page to test changes before selecting a design point.</div></div></div>
 <div class="section-gap card"><h3 class="section-title">System flow</h3><div class="flow"><div class="node"><strong>1 · Campus waste</strong><span>Hostel, canteen and garden streams</span></div><div class="node"><strong>2 · Characterization</strong><span>Quantity, TS, VS, C/N and composition</span></div><div class="node"><strong>3 · Virtual digester</strong><span>HRT, OLR, pH and temperature</span></div><div class="node"><strong>4 · Prediction</strong><span>Biogas and methane estimate</span></div><div class="node"><strong>5 · Health check</strong><span>Process stability assessment</span></div><div class="node"><strong>6 · Optimization</strong><span>Best mix and operating window</span></div><div class="node"><strong>7 · Resource recovery</strong><span>Energy and digestate potential</span></div><div class="node"><strong>8 · Decision support</strong><span>Compare scenarios for campus planning</span></div></div></div>
 </section>
@@ -696,8 +720,9 @@ const days=[0,1,2,3,4,5,6], vals=[116,121,126,124,132,129,122];$('gasChart').inn
 function sim(){const t=+$('temp').value,ph=+$('ph').value,h=+$('hrt').value,o=+$('olr').value,food=+$('food').value,garden=+$('garden').value;let score=100-Math.abs(t-37)*2-Math.abs(ph-7)*18-Math.abs(h-24)*.7-Math.abs(o-3)*5-Math.abs(food-60)*.18-Math.abs(garden-15)*.2;score=Math.max(40,Math.min(97,score));let ch4=124*(1+(food-55)*.004+(37-Math.abs(t-37))*0.004-(Math.abs(ph-7)*.03)-(Math.abs(o-3)*.015)-(Math.abs(h-25)*.004));ch4=Math.max(65,Math.round(ch4));let gas=Math.round(ch4/.65),dig=Math.round(600*(.77-(food-55)*.0005));$('simGas').textContent=gas+' m³/d';$('simCH4').textContent=ch4+' m³/d';$('simFrac').textContent=Math.round(ch4/gas*100)+'%';$('simFracNote').textContent='Screening estimate';$('simDigestate').textContent=dig+' kg/d';$('kpiMethane').textContent=ch4+' m³/d';$('kpiEnergy').textContent=Math.round(ch4*9.94)+' kWh/d';$('kpiScore').textContent=Math.round(score)+' / 100';$('simNote').innerHTML=score>80?'<b>Assessment:</b> The current working point is inside the modeled stable range. This is a simulation result, not a physical measurement.':score>65?'<b>Assessment:</b> The scenario is workable but closer to an operating boundary. Check loading and pH before selecting it.':'<b>Assessment:</b> This scenario is outside the preferred working window. Use optimization to search for a more stable combination.';document.querySelector('.score').style.setProperty('--score',score+'%');document.querySelector('.score strong').textContent=Math.round(score);}
 [['temp','tempVal','°C'],['ph','phVal',''],['hrt','hrtVal',' d'],['olr','olrVal',' kg VS/m³·d'],['food','foodVal','%'],['garden','gardenVal','%']].forEach(([a,b,s])=>$(a).addEventListener('input',()=>{$(b).textContent=$(a).value+s;sim()}));$('runSim').addEventListener('click',sim);$('optimalBtn').addEventListener('click',()=>{[['temp',37],['ph',7],['hrt',24],['olr',3.1],['food',60],['garden',15]].forEach(([a,v])=>$(a).value=v);document.querySelectorAll('.field .range').forEach(e=>e.dispatchEvent(new Event('input')));sim()});
 function optimize(){const food=+$('optFood').value,t=+$('optTemp').value,ph=+$('optPh').value,h=24,o=3,stability=Math.max(0,100-Math.abs(t-37)*2-Math.abs(ph-7)*18-Math.abs(h-24)*.7-Math.abs(o-3)*5-Math.abs(food-60)*.18);let ch=124*(1+(food-55)*.004+(37-Math.abs(t-37))*.004-Math.abs(ph-7)*.03-Math.abs(o-3)*.015-Math.abs(h-25)*.004);ch=Math.max(65,Math.round(ch));$('optResult').textContent=ch+' m³ CH₄/d';$('optDelta').textContent=(ch>=124?'+':'')+(ch-124)+' m³/d versus the 124 m³/d baseline simulation.';$('bestFood').textContent=food+'%';$('bestVeg').textContent=(100-food-15)+'%';$('bestGarden').textContent='15%';$('bestTemp').textContent=t+'°C';$('bestPh').textContent=ph.toFixed(1);$('bestHrt').textContent=h+' d';$('bestOlr').textContent=o.toFixed(1)+' kg VS/m³·d';$('optMethaneScore').textContent=Math.min(100,Math.round(ch/1.45))+'%';$('optStabilityScore').textContent=Math.round(stability)+'%';$('optHrtScore').textContent='80%';$('optMethaneMeter').style.width=Math.min(100,ch/1.45)+'%';$('optStabilityMeter').style.width=stability+'%';$('optHrtMeter').style.width='80%';$('optNote').innerHTML='<b>Selected scenario:</b> Results now use your chosen food-waste percentage, temperature and pH. This is a screening calculation, not a validated ML prediction.'}
-function scenario(){const f=+$('scenarioFood').value,t=+$('scenarioTemp').value,o=+$('scenarioOlr').value;let ch=124*(1+f*.004+t*.004-o*.015);ch=Math.max(60,Math.round(ch));$('scenarioCH4').textContent=ch+' m³/d';$('scenarioEnergy').textContent=Math.round(ch*9.94)+' kWh/d';$('scenarioFoodVal').textContent=(f>=0?'+':'')+f+'%';$('scenarioTempVal').textContent=(t>=0?'+':'')+t+'°C';$('scenarioOlrVal').textContent=(o>=0?'+':'')+o.toFixed(1);$('scenarioNote').textContent=f>20&&o>0.8?'The scenario increases loading quickly; review OLR and stability before treating the higher output as a preferred case.':t<-4?'Lower temperature reduces the modeled output and should be evaluated against the intended operating regime.':'The scenario remains suitable for comparison; use the optimization module to identify the best trade-off.'}
-['scenarioFood','scenarioTemp','scenarioOlr'].forEach(id=>$(id).addEventListener('input',scenario));const legacyOptButton=$('runOpt');if(legacyOptButton)legacyOptButton.addEventListener('click',optimize);$('resetBtn').addEventListener('click',()=>location.reload());sim();scenario();if(legacyOptButton)optimize();
+function scenario(){const f=+$('scenarioFood').value,t=+$('scenarioTemp').value,o=+$('scenarioOlr').value;let ch=124*(1+f*.004+t*.004-o*.015);ch=Math.max(60,Math.round(ch));const energy=Math.round(ch*9.94);$('scenarioCH4').textContent=ch+' m³/d';$('scenarioEnergy').textContent=energy.toLocaleString()+' kWh/d';$('scenarioFoodVal').textContent=(f>=0?'+':'')+f+'%';$('scenarioTempVal').textContent=(t>=0?'+':'')+t+'°C';$('scenarioOlrVal').textContent=(o>=0?'+':'')+o.toFixed(1);const note=f>20&&o>0.8?'The scenario increases loading quickly; review OLR and stability before treating the higher output as a preferred case.':t<-4?'Lower temperature reduces the screening estimate and should be checked against the intended operating regime.':'Illustrative scenario only; compare alternatives, then verify assumptions before using in research.';$('scenarioNote').textContent=note;if($('homeScenarioFood')){$('homeScenarioFood').value=f;$('homeScenarioTemp').value=t;$('homeScenarioOlr').value=o;$('homeScenarioFoodVal').textContent=(f>=0?'+':'')+f+'%';$('homeScenarioTempVal').textContent=(t>=0?'+':'')+t+'°C';$('homeScenarioOlrVal').textContent=(o>=0?'+':'')+o.toFixed(1);$('homeScenarioCH4').textContent=ch+' m³/d';$('homeScenarioEnergy').textContent=energy.toLocaleString()+' kWh/d';$('homeScenarioNote').textContent=note;}}
+function syncScenarioControls(source){const pairs=[['scenarioFood','homeScenarioFood'],['scenarioTemp','homeScenarioTemp'],['scenarioOlr','homeScenarioOlr']];pairs.forEach(([full,home])=>{if(source==='home')$(full).value=$(home).value;else $(home).value=$(full).value});scenario()}
+['scenarioFood','scenarioTemp','scenarioOlr'].forEach(id=>$(id).addEventListener('input',()=>syncScenarioControls('full')));['homeScenarioFood','homeScenarioTemp','homeScenarioOlr'].forEach(id=>$(id).addEventListener('input',()=>syncScenarioControls('home')));const legacyOptButton=$('runOpt');if(legacyOptButton)legacyOptButton.addEventListener('click',optimize);$('resetBtn').addEventListener('click',()=>location.reload());sim();scenario();if(legacyOptButton)optimize();
 </script>
 <script>
 /* Advanced interactive screening layer. This deliberately remains a heuristic and does not claim to implement ADM1. */
@@ -1632,6 +1657,75 @@ sim();
   $('p5AutoStatus').textContent='QA report CSV exported. Report distinguishes automated checks, manual reviews and outstanding scientific validation.';
  });
  updateManualProgress();renderAuto();
+})();
+</script>
+<script>
+/* Local project backup/restore and mobile table hints */
+(function(){
+ const PROJECT_KEYS=[
+  'bitAnaerobicWasteRows_v1',
+  'bitStpUserTankEntries_v1',
+  'bitStpUserFlowEntries_v1',
+  'bitDataValidationStpTank_v1',
+  'bitDataValidationStpFlow_v1',
+  'bitPhase3FeedstockSamples_v1',
+  'bitPhase3ValidationRuns_v1',
+  'bitPhase4BaselineModels_v1',
+  'bitLatestAdm1Run_v1',
+  'bitPhase5QAChecklist_v1',
+  'bitBackupLastExportAt_v1'
+ ];
+ const FORMAT='BIT_ANAEROBIC_LOCAL_BACKUP_V1';
+ const $=id=>document.getElementById(id);
+ function setStatus(msg,error=false){const el=$('backupActionStatus');if(el){el.textContent=msg;el.style.color=error?'var(--danger)':'var(--muted)'}}
+ function lastBackupStatus(){
+  let when='';try{when=localStorage.getItem('bitBackupLastExportAt_v1')||''}catch(e){}
+  $('backupLastStatus').textContent=when?'Last full backup requested: '+new Date(when).toLocaleString()+'. Keep the downloaded file somewhere outside this browser.':'Full local backup: not recorded in this browser.';
+ }
+ function buildBackup(){
+  const values={};
+  PROJECT_KEYS.forEach(key=>{if(key==='bitBackupLastExportAt_v1')return;try{const value=localStorage.getItem(key);if(value!==null)values[key]=value}catch(e){}});
+  return {format:FORMAT,createdAt:new Date().toISOString(),project:'BIT Smart Campus Anaerobic Biorefinery',note:'Local browser backup. This file is not encrypted and has not been uploaded to a server. Keep it private. It can be restored on this website.',dataKeys:values};
+ }
+ function downloadText(filename,text,mime){
+  const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
+ $('downloadLocalBackupBtn').addEventListener('click',()=>{
+  try{
+   const backup=buildBackup();
+   downloadText('BIT_Anaerobic_Biorefinery_Local_Backup_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(backup,null,2),'application/json;charset=utf-8');
+   const now=new Date().toISOString();try{localStorage.setItem('bitBackupLastExportAt_v1',now)}catch(e){}
+   lastBackupStatus();setStatus('Backup file generated. Check your Downloads folder and copy it to a safe location such as cloud storage or an external drive.');
+  }catch(e){setStatus('Could not create the backup file: '+(e.message||'browser error'),true)}
+ });
+ $('restoreLocalBackupInput').addEventListener('change',async e=>{
+  const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;
+  try{
+   const backup=JSON.parse(await file.text());
+   if(!backup||backup.format!==FORMAT||!backup.dataKeys||typeof backup.dataKeys!=='object'||Array.isArray(backup.dataKeys))throw new Error('This is not a valid BIT Anaerobic Biorefinery local backup file.');
+   const entries=Object.entries(backup.dataKeys).filter(([key])=>PROJECT_KEYS.includes(key)&&key!=='bitBackupLastExportAt_v1');
+   if(!entries.length)throw new Error('No recognized project data keys were found in this backup.');
+   entries.forEach(([key,value])=>{if(typeof value!=='string')throw new Error('Backup key '+key+' is not stored as a valid string.');JSON.parse(value)});
+   if(!window.confirm('Restore '+entries.length+' local project data section(s) from '+file.name+'? This replaces saved values for all tracked sections. Export a fresh backup first if needed.'))return;
+   PROJECT_KEYS.forEach(key=>{if(key!=='bitBackupLastExportAt_v1')localStorage.removeItem(key)});
+   entries.forEach(([key,value])=>localStorage.setItem(key,value));
+   localStorage.setItem('bitBackupLastExportAt_v1',new Date().toISOString());
+   setStatus('Backup restored. Reloading the page so the saved records and model state refresh.');
+   setTimeout(()=>location.reload(),600);
+  }catch(err){setStatus('Restore failed: '+(err.message||'check the selected JSON file.'),true)}
+ });
+ $('openStpBackupBtn').addEventListener('click',()=>{const b=document.querySelector('button[data-page="stpdata"]');if(b)b.click();setTimeout(()=>{const el=$('stpExportExcelBtn');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},50);setStatus('Open the STP operational records page and use Export Excel workbook after checking the saved rows.')});
+ $('openValidationBackupBtn').addEventListener('click',()=>{const b=document.querySelector('button[data-page="data"]');if(b)b.click();setTimeout(()=>{const el=$('p3ExportExcelBtn');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},50);setStatus('Open Data & validation and use Export Phase 3 Excel. The separate STP import/export controls are also on this page.')});
+ $('openFullScenarioBtn').addEventListener('click',()=>{const b=document.querySelector('button[data-page="scenarios"]');if(b)b.click()});
+ document.querySelectorAll('div[style*="overflow-x:auto"]').forEach(wrapper=>{
+  if(!wrapper.querySelector('table'))return;
+  wrapper.classList.add('mobile-data-table-scroll');
+  if(wrapper.previousElementSibling&&wrapper.previousElementSibling.classList.contains('mobile-scroll-hint'))return;
+  const hint=document.createElement('p');hint.className='mobile-scroll-hint';hint.textContent='On a phone, swipe this table sideways to view the remaining columns. The first column stays visible where supported.';
+  wrapper.parentNode.insertBefore(hint,wrapper);
+ });
+ lastBackupStatus();
 })();
 </script>
 </body></html>
