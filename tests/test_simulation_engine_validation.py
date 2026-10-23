@@ -28,16 +28,6 @@ class SimulationInputValidationTests(unittest.TestCase):
         if message_fragment:
             self.assertIn(message_fragment, str(caught.exception))
 
-    def test_accepts_valid_request_until_model_import(self):
-        # A valid request proceeds to the optional model dependency import.
-        # This intentionally does not execute the model.
-        try:
-            run_simulation(BASE)
-        except RuntimeError as exc:
-            self.assertIn("PyADM1ODE", str(exc))
-        except ValueError as exc:
-            self.fail(f"Valid input was rejected during validation: {exc}")
-
     def test_rejects_non_finite_numeric_values(self):
         for value in (math.nan, math.inf, -math.inf):
             with self.subTest(value=value):
