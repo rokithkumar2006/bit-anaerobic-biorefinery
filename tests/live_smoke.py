@@ -60,7 +60,7 @@ def main():
             payload = {"feed_rate_kg_day": 600, "food_share_pct": 55, "garden_share_pct": 15,
                        "temperature_c": 37, "hrt_days": 25, "duration_days": 1, "timestep_hours": 24}
             simulation = page.request.post(urljoin(BASE_URL + "/", "api/simulate"),
-                                           data=payload, timeout=120000)
+                                           data=json.dumps(payload), headers={"Content-Type": "application/json"}, timeout=120000)
             try:
                 result = simulation.json()
             except Exception:
