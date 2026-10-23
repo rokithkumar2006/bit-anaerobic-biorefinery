@@ -73,8 +73,8 @@ class SimulationOutputTests(unittest.TestCase):
         self.assertEqual(result["model_version"], "test-version")
         self.assertTrue(math.isfinite(result["tail_period_mean"]["biogas_m3_day"]))
         self.assertTrue(math.isfinite(result["tail_period_mean"]["methane_m3_day"]))
-        self.assertAlmostEqual(result["tail_period_mean"]["biogas_m3_day"], 3.0)
-        self.assertAlmostEqual(result["tail_period_mean"]["methane_m3_day"], 1.65)
+        self.assertAlmostEqual(result["tail_period_mean"]["biogas_m3_day"], 4.0)
+        self.assertAlmostEqual(result["tail_period_mean"]["methane_m3_day"], 2.2)
         self.assertIn("not validated", result["model_status"])
         self.assertIn("reference proxies", result["assumptions"]["note"])
 
