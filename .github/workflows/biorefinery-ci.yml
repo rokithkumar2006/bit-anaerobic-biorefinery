@@ -14,10 +14,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: biorefinery-ci
-  cancel-in-progress: true
-
 jobs:
   code-and-data-tests:
     name: Code, simulation validation, and STP data
