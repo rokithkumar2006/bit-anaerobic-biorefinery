@@ -134,29 +134,26 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 
 
 /* Usability follow-ups: local backup banner, dashboard sliders and mobile table handling */
-.backup-reminder{position:sticky;top:0;z-index:40;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;align-items:center;padding:12px 14px;margin:0 0 18px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel2)}
-.backup-reminder-copy{min-width:0}
-.backup-reminder-copy strong{font-size:14px}
-.backup-reminder-copy p{font-size:12px;color:var(--muted);line-height:1.5;margin:4px 0 0}
-.backup-reminder-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-.backup-reminder-actions .btn{width:auto;white-space:normal;text-align:center}
+.project-tools-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 24px}
+.project-tool-card{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;margin:0}
+.project-tool-card .section-title{margin:0;font-size:17px}
+.project-tool-card p{margin:0;line-height:1.55}
+.project-tool-card .btn{margin-top:auto;width:auto;max-width:100%;white-space:normal;text-align:left}
+.project-tool-card label.btn{display:inline-flex;align-items:center;cursor:pointer}
+.project-tool-report{border-color:var(--accent)}
 .backup-action-status{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+@media(max-width:1000px){.project-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.project-tools-grid{grid-template-columns:1fr}.project-tool-card .btn{width:100%;text-align:center}}
 #dashboardQuickWhatIf .form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 #dashboardQuickWhatIf .field{min-width:0}
 #dashboardQuickWhatIf .field input[type=range]{width:100%;max-width:100%}
 #dashboardQuickWhatIf .actions .btn{width:auto}
 .mobile-scroll-hint{display:none;color:var(--muted);font-size:11px;line-height:1.4;margin:6px 0 8px;padding:6px 8px;background:var(--panel2);border-left:2px solid var(--line)}
 .mobile-data-table-scroll{max-width:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin}
-@media(max-width:900px){.backup-reminder{grid-template-columns:1fr;top:0;padding:10px}.backup-reminder-actions{justify-content:flex-start}.backup-action-status{grid-column:auto}}
-@media(max-width:760px){.mobile-scroll-hint{display:block}.mobile-data-table-scroll table.table th:first-child,.mobile-data-table-scroll table.table td:first-child{position:sticky;left:0;background:var(--panel);box-shadow:1px 0 var(--line);z-index:2}.mobile-data-table-scroll table.table th:first-child{z-index:4}.mobile-data-table-scroll table.table td:first-child{max-width:128px;min-width:88px;white-space:normal;overflow-wrap:anywhere}.mobile-data-table-scroll table.table th:first-child{max-width:128px;min-width:88px}.mobile-data-table-scroll table.table{font-size:11px}.mobile-data-table-scroll table.table th,.mobile-data-table-scroll table.table td{padding:8px 7px}#dashboardQuickWhatIf .form-grid{grid-template-columns:1fr}.backup-reminder-actions .btn{font-size:11px;padding:8px 10px}}
+
+@media(max-width:760px){.mobile-scroll-hint{display:block}.mobile-data-table-scroll table.table th:first-child,.mobile-data-table-scroll table.table td:first-child{position:sticky;left:0;background:var(--panel);box-shadow:1px 0 var(--line);z-index:2}.mobile-data-table-scroll table.table th:first-child{z-index:4}.mobile-data-table-scroll table.table td:first-child{max-width:128px;min-width:88px;white-space:normal;overflow-wrap:anywhere}.mobile-data-table-scroll table.table th:first-child{max-width:128px;min-width:88px}.mobile-data-table-scroll table.table{font-size:11px}.mobile-data-table-scroll table.table th,.mobile-data-table-scroll table.table td{padding:8px 7px}#dashboardQuickWhatIf .form-grid{grid-template-columns:1fr}}
 
 
-
-.backup-report-action{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:10px;border-top:1px solid var(--line)}
-.backup-report-action strong{font-size:13px}
-.backup-report-action p{font-size:12px;color:var(--muted);line-height:1.5;margin:3px 0 0}
-.backup-report-action .btn{flex:0 0 auto;white-space:normal;text-align:center}
-@media(max-width:900px){.backup-report-action{grid-column:auto;align-items:flex-start;flex-direction:column}.backup-report-action .btn{width:auto;max-width:100%}}
 
 
 #gompertzFitPanel textarea{width:100%;min-height:130px;resize:vertical;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
@@ -214,9 +211,33 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <div class="layout">
 <aside><div class="nav-section">Workspace</div><nav id="nav"><button class="active" data-page="overview">Overview</button><button data-page="waste">Waste profile</button><button data-page="data">Data & validation</button><button data-page="stpdata">STP operational records</button><button data-page="workflow">Data collection plan</button><button data-page="opensource">Open-source simulations</button><button data-page="digester">Virtual digester</button><button data-page="prediction">Prediction</button><button data-page="optimization">Optimization</button><button data-page="scenarios">What-if study</button><button data-page="circular">Circular outputs</button><button data-page="quality">Testing & report</button></nav><div class="nav-section">Notes</div><div style="padding:0 12px;color:var(--muted);font-size:10px;line-height:1.6">No physical sensors are required in this prototype. Process values are simulated or model-derived.</div><div class="nav-section">Site information</div><nav><button data-page="terms">Terms & conditions</button></nav></aside>
 <main>
-<div class="backup-reminder" id="backupReminder" role="region" aria-label="Browser data backup reminder">
- <div class="backup-reminder-copy"><strong>Protect your project data</strong><p>Records saved by this site live in this browser and do not sync across devices. Download a backup before clearing browser data or switching devices. Save pending edits before backing up.</p><p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p></div>
- <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div><div class="backup-report-action"><div><strong>Need a printable project summary?</strong><p>Generate a campus feasibility screening report using the current scenario and saved record counts.</p></div><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
+<div class="project-tools-grid" id="backupReminder" aria-label="Project data tools">
+ <section class="card project-tool-card" aria-labelledby="backupToolTitle">
+  <div class="eyebrow">Data safety</div><h2 class="section-title" id="backupToolTitle">Protect your project data</h2>
+  <p class="small">Your records are saved in this browser and do not sync across devices. Save pending edits before creating a backup.</p>
+  <p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p>
+  <button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button>
+ </section>
+ <section class="card project-tool-card" aria-labelledby="restoreToolTitle">
+  <div class="eyebrow">Recovery</div><h2 class="section-title" id="restoreToolTitle">Restore project backup</h2>
+  <p class="small">Load a previously downloaded JSON backup to restore locally saved project records.</p>
+  <label for="restoreLocalBackupInput" class="btn">Choose backup file</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden>
+ </section>
+ <section class="card project-tool-card" aria-labelledby="stpToolTitle">
+  <div class="eyebrow">Operational records</div><h2 class="section-title" id="stpToolTitle">STP Excel controls</h2>
+  <p class="small">Import, review, and export the STP operational records separately from simulation inputs.</p>
+  <button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button>
+ </section>
+ <section class="card project-tool-card" aria-labelledby="validationToolTitle">
+  <div class="eyebrow">Data validation</div><h2 class="section-title" id="validationToolTitle">Validation Excel controls</h2>
+  <p class="small">Open the validation workbook tools to review sample records and model-readiness checks.</p>
+  <button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button>
+ </section>
+ <section class="card project-tool-card project-tool-report" aria-labelledby="reportToolTitle">
+  <div class="eyebrow">Reporting</div><h2 class="section-title" id="reportToolTitle">Campus feasibility report</h2>
+  <p class="small">Generate a printable screening report using the current scenario and saved record counts. It is not a validated engineering feasibility certificate.</p>
+  <button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button>
+ </section>
  <p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
 </div>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
