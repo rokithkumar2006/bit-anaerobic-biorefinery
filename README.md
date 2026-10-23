@@ -38,6 +38,20 @@ It converts kg/day into m³/day using an assumed bulk density of 1000 kg/m³ and
 
 The simulation endpoint returns an error if the real model fails. It never substitutes the website's illustrative screening heuristic as a successful PyADM1ODE result.
 
+## Validation tests
+
+Run the dependency-light request-validation tests without executing the digester model:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+These tests cover malformed/non-finite values, percentage sums, integer-only duration and timestep values, and configured input limits. They do not validate model accuracy or campus-specific methane yield.
+
+## STP data quality
+
+The bundled STP transcription is exploratory and includes records flagged for unit, interval, column-alignment, and total reconciliation checks. See [docs/STP_DATA_QUALITY_AUDIT.md](docs/STP_DATA_QUALITY_AUDIT.md). Preserve the original transcription; correct a record only after checking the source workbook or instrument log. Do not use these wastewater records as campus organic-feedstock characterization or methane-yield training targets.
+
 ## Local ASGI run
 
 ```bash
