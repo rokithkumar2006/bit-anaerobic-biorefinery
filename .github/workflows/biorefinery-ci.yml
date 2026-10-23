@@ -1,0 +1,80 @@
+name: Biorefinery CI and Live Monitoring
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: biorefinery-\${{ github.workflow }}-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-and-data-tests:
+    name: Code, simulation validation, and STP data
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js for JavaScript syntax checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Compile Python sources
+        run: python -m compileall -q api main.py simulation_engine.py tests
+
+      - name: Run unit, frontend syntax, and STP dataset tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  live-site-smoke-tests:
+    name: Live website, API, STP records, and simulation
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "playwright>=1.50,<2"
+          python -m playwright install --with-deps chromium
+
+      - name: Test deployed website and APIs (read-only)
+        env:
+          LIVE_BASE_URL: https://bit-anaerobic-biorefinery.vercel.app
+        run: python tests/live_smoke.py
+
+      - name: Record monitoring summary
+        if: always()
+        run: |
+          {
+            echo "### BIT Anaerobic Biorefinery live monitoring"
+            echo "- Site: https://bit-anaerobic-biorefinery.vercel.app"
+            echo "- Checks: navigation, uncaught browser errors, API health, STP record counts, and a disposable one-day simulation."
+            echo "- No live data records are written by the smoke tests."
+            echo "- Failed runs appear in GitHub Actions and use repository notification settings."
+          } >> "$GITHUB_STEP_SUMMARY"
