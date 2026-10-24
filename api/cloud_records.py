@@ -109,7 +109,7 @@ class handler(BaseHTTPRequestHandler):
                         _send(self, 400, {"detail": "Each record needs a valid bit-prefixed key and record_value."})
                         return
                     clean.append({"record_key": item["record_key"], "record_value": item["record_value"]})
-                path = "/rest/v1/project_records?on_conflict=record_key"
+                path = "/rest/v1/project_records?on_conflict=user_id,record_key"
                 _, result = _request(url, anon, token, path, "POST", clean, "resolution=merge-duplicates,return=representation")
                 _send(self, 200, {"saved": len(clean), "records": result or []})
                 return
