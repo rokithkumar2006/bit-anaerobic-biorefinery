@@ -145,6 +145,14 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 .backup-reminder .backup-action-status{padding-top:2px}
 @media(max-width:520px){.backup-reminder-actions{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch;align-items:stretch}.backup-reminder-actions .btn{width:100%;min-width:0;padding:9px 8px;font-size:11px}.backup-reminder-actions label.btn{cursor:pointer}.backup-reminder-copy strong{font-size:13px}.backup-report-action .btn{width:100%}}
 .backup-action-status{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.cloud-panel{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px}
+.cloud-panel[hidden]{display:none}
+.cloud-panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cloud-panel input{width:100%;min-width:0;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:2px;padding:10px}
+.cloud-panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cloud-panel-actions .btn{width:auto;min-height:40px}
+.cloud-status{font-size:12px;color:var(--muted);margin:0;overflow-wrap:anywhere}
+@media(max-width:520px){.cloud-panel-grid{grid-template-columns:1fr}.cloud-panel-actions{display:grid;grid-template-columns:1fr 1fr}.cloud-panel-actions .btn{width:100%;font-size:11px;padding:9px 7px}}
 #dashboardQuickWhatIf .form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 #dashboardQuickWhatIf .field{min-width:0}
 #dashboardQuickWhatIf .field input[type=range]{width:100%;max-width:100%}
@@ -220,8 +228,14 @@ main{padding:28px;max-width:1400px;width:100%;margin:0 auto}.page{display:none}.
 <main>
 <div class="backup-reminder" id="backupReminder" role="region" aria-label="Browser data backup reminder">
  <div class="backup-reminder-copy"><strong>Protect your project data</strong><p>Records saved by this site live in this browser and do not sync across devices. Download a backup before clearing browser data or switching devices. Save pending edits before backing up.</p><p class="small" id="backupLastStatus" aria-live="polite">Full local backup: not recorded in this browser.</p></div>
- <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div><div class="backup-report-action"><div><strong>Need a printable project summary?</strong><p>Generate a campus feasibility screening report using the current scenario and saved record counts.</p></div><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
- <p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
+ <div class="backup-reminder-actions"><button type="button" class="btn primary" id="downloadLocalBackupBtn">Download all-data backup (.json)</button><label for="restoreLocalBackupInput" class="btn">Restore backup</label><input type="file" id="restoreLocalBackupInput" accept=".json,application/json" hidden><button type="button" class="btn" id="openCloudPanelBtn">Cloud storage</button><button type="button" class="btn" id="openStpBackupBtn">Open STP Excel controls</button><button type="button" class="btn" id="openValidationBackupBtn">Open validation Excel controls</button></div><div class="backup-report-action"><div><strong>Need a printable project summary?</strong><p>Generate a campus feasibility screening report using the current scenario and saved record counts.</p></div><button type="button" class="btn primary" id="generateFeasibilityReportBtn">Generate Campus Feasibility Report</button></div>
+ <div class="cloud-panel" id="cloudPanel" hidden aria-label="Cloud storage account">
+ <div><strong>Cloud storage (Supabase)</strong><p class="small">Sign in to sync this browser's project records to your private account. Sync and restore are always manual.</p></div>
+ <div class="cloud-panel-grid"><input id="cloudEmail" type="email" autocomplete="email" placeholder="Email address" aria-label="Email address"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Password (minimum 8 characters)" aria-label="Password"></div>
+ <div class="cloud-panel-actions"><button type="button" class="btn" id="cloudSignInBtn">Sign in</button><button type="button" class="btn" id="cloudSignUpBtn">Create account</button><button type="button" class="btn" id="cloudSignOutBtn" hidden>Sign out</button><button type="button" class="btn primary" id="cloudSyncBtn" disabled>Sync this device to cloud</button><button type="button" class="btn" id="cloudRestoreBtn" disabled>Merge cloud records to this device</button></div>
+ <p class="cloud-status" id="cloudStatus" role="status" aria-live="polite">Cloud storage is not configured yet.</p>
+</div>
+<p id="backupActionStatus" class="small backup-action-status" role="status" aria-live="polite"></p>
 </div>
 <input type="hidden" id="food" value="55"><input type="hidden" id="garden" value="15">
 <section class="page active" id="overview"><div class="eyebrow">Project workspace</div><h1 class="title">Campus organic waste, treated as a process problem.</h1><p class="subtitle">A practical simulation environment for testing feedstock mixes, digestion conditions and resource recovery before a physical system is built.</p>
@@ -2201,6 +2215,119 @@ sim();
    showFit(saved);
   }
  }catch(e){}
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* Explicit, user-controlled Supabase sync. Local browser data is never uploaded automatically. */
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const panel=$('cloudPanel'),status=$('cloudStatus');
+ if(!panel||!status)return;
+ let client=null,ready=false;
+ function say(message,isError=false){status.textContent=message;status.style.color=isError?'var(--danger)':'var(--muted)'}
+ function setAuthUI(session){
+  const signed=!!(session&&session.access_token);
+  $('cloudSignInBtn').hidden=signed;
+  $('cloudSignUpBtn').hidden=signed;
+  $('cloudSignOutBtn').hidden=!signed;
+  $('cloudSyncBtn').disabled=!signed||!ready;
+  $('cloudRestoreBtn').disabled=!signed||!ready;
+  $('cloudEmail').disabled=signed;
+  $('cloudPassword').disabled=signed;
+  if(signed)say('Signed in as '+(session.user.email||'your account')+'. Choose a sync direction below.');
+ }
+ async function getSession(){if(!client)return null;const result=await client.auth.getSession();if(result.error)throw result.error;return result.data.session}
+ async function api(path,method,body){
+  const session=await getSession();
+  if(!session)throw new Error('Sign in first.');
+  const response=await fetch(path,{method,headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.detail||('Cloud request failed ('+response.status+').'));
+  return data;
+ }
+ function localRecords(){
+  const rows=[];
+  for(let i=0;i<localStorage.length;i++){
+   const key=localStorage.key(i);
+   if(!key||!/^bit[A-Za-z0-9_]{0,120}$/.test(key)||key==='bitBackupLastExportAt_v1')continue;
+   const raw=localStorage.getItem(key);
+   if(raw===null)continue;
+   let value;
+   try{value=JSON.parse(raw)}catch(e){value={raw_text:raw}}
+   rows.push({record_key:key,record_value:value});
+  }
+  return rows;
+ }
+ async function batches(items,fn){
+  for(let i=0;i<items.length;i+=200)await fn(items.slice(i,i+200));
+ }
+ async function configure(){
+  try{
+   const response=await fetch('/api/cloud_config',{cache:'no-store'});
+   const config=await response.json();
+   if(!response.ok||!config.configured){say('Create a Supabase project and add SUPABASE_URL and SUPABASE_ANON_KEY in Vercel, then redeploy.',true);return}
+   if(!window.supabase||!window.supabase.createClient){say('Could not load the Supabase client library. Check your connection and reload.',true);return}
+   client=window.supabase.createClient(config.url,config.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+   ready=true;
+   const session=await getSession();
+   setAuthUI(session);
+   if(!session)say('Supabase is configured. Sign in or create an account to enable cloud sync.');
+   client.auth.onAuthStateChange((_event,sessionNow)=>setAuthUI(sessionNow));
+  }catch(e){say('Cloud setup check failed: '+(e.message||'network error'),true)}
+ }
+ $('openCloudPanelBtn')?.addEventListener('click',()=>{
+  panel.hidden=!panel.hidden;
+  if(!panel.hidden)panel.scrollIntoView({behavior:'auto',block:'nearest'});
+ });
+ async function authAction(kind){
+  if(!ready||!client){say('Cloud storage is not configured yet.',true);return}
+  const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;
+  if(!email||!password){say('Enter your email address and password.',true);return}
+  if(kind==='signup'&&password.length<8){say('Use a password with at least 8 characters.',true);return}
+  try{
+   say(kind==='signup'?'Creating account…':'Signing in…');
+   const result=kind==='signup'?await client.auth.signUp({email,password}):await client.auth.signInWithPassword({email,password});
+   if(result.error)throw result.error;
+   if(kind==='signup'&&!result.data.session){say('Account created. Check your email to confirm it, then sign in.');return}
+   setAuthUI(result.data.session);
+  }catch(e){say((e.message||'Authentication failed.')+' If sign-up requires email confirmation, confirm your email first.',true)}
+ }
+ $('cloudSignInBtn').addEventListener('click',()=>authAction('signin'));
+ $('cloudSignUpBtn').addEventListener('click',()=>authAction('signup'));
+ $('cloudSignOutBtn').addEventListener('click',async()=>{
+  try{const r=await client.auth.signOut();if(r.error)throw r.error;setAuthUI(null);say('Signed out. Your local browser records have not been changed.')}
+  catch(e){say(e.message||'Could not sign out.',true)}
+ });
+ $('cloudSyncBtn').addEventListener('click',async()=>{
+  const rows=localRecords();
+  if(!rows.length){say('No bit-prefixed project records were found in this browser to sync.',true);return}
+  if(!window.confirm('Upload '+rows.length+' local project record sections to your signed-in cloud account? Existing cloud values with matching keys will be updated.'))return;
+  $('cloudSyncBtn').disabled=true;
+  try{
+   await batches(rows,part=>api('/api/cloud_records','POST',{records:part}));
+   say('Synced '+rows.length+' project record sections to your cloud account. Local records were kept.');
+  }catch(e){say('Cloud sync failed: '+(e.message||'unknown error'),true)}
+  finally{const session=await getSession().catch(()=>null);setAuthUI(session)}
+ });
+ $('cloudRestoreBtn').addEventListener('click',async()=>{
+  if(!window.confirm('Merge cloud records onto this device? Matching local keys will be replaced by cloud values; local-only keys will be kept. Download a local backup first if needed.'))return;
+  $('cloudRestoreBtn').disabled=true;
+  try{
+   const data=await api('/api/cloud_records','GET');
+   const rows=Array.isArray(data.records)?data.records:[];
+   if(!rows.length){say('No cloud records found for this account. Your local records were not changed.');return}
+   for(const row of rows){
+    if(!row||!/^bit[A-Za-z0-9_]{0,120}$/.test(row.record_key)||row.record_key==='bitBackupLastExportAt_v1')continue;
+    localStorage.setItem(row.record_key,JSON.stringify(row.record_value));
+   }
+   say('Merged '+rows.length+' cloud record sections. Reloading to refresh the workspace…');
+   setTimeout(()=>location.reload(),700);
+  }catch(e){say('Cloud restore failed: '+(e.message||'unknown error'),true)}
+  finally{$('cloudRestoreBtn').disabled=!(await getSession().catch(()=>null))||!ready}
+ });
+ configure();
 })();
 </script>
 </body></html>
