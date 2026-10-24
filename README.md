@@ -52,3 +52,7 @@ Keep the existing HTML frontend and deploy the repository using its connected Gi
 - The website's **Check backend** control.
 
 If the Vercel project has a custom framework preset that prevents Python function discovery, review the deployment build log before changing the frontend project settings.
+
+## Optional Supabase cloud records
+
+The repository includes an opt-in, per-user Supabase storage foundation. Follow [SUPABASE_SETUP.md](SUPABASE_SETUP.md) to create a free-tier project, apply the RLS-protected schema in `supabase/migrations/`, configure `SUPABASE_URL` and `SUPABASE_ANON_KEY` in Vercel, and enable manual sign-in and cloud sync. The browser retains its local data; cloud upload and merge-back are explicit user actions. Never expose a Supabase service-role key.
